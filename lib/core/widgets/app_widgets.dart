@@ -33,9 +33,11 @@ class AppButton extends StatelessWidget {
     final colors = _getColors();
     final child = isLoading
         ? SizedBox(
-            width: 20, height: 20,
+            width: 20,
+            height: 20,
             child: CircularProgressIndicator(
-              strokeWidth: 2.5, color: colors['text'],
+              strokeWidth: 2.5,
+              color: colors['text'],
             ),
           )
         : Row(
@@ -46,7 +48,9 @@ class AppButton extends StatelessWidget {
                 Icon(icon, size: 20, color: colors['text']),
                 const SizedBox(width: 8),
               ],
-              Text(label, style: AppTextStyles.titleLarge.copyWith(color: colors['text'])),
+              Text(label,
+                  style:
+                      AppTextStyles.titleLarge.copyWith(color: colors['text'])),
             ],
           );
 
@@ -58,7 +62,8 @@ class AppButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         child: Container(
           height: height ?? 52,
-          constraints: expanded ? const BoxConstraints(minWidth: double.infinity) : null,
+          constraints:
+              expanded ? const BoxConstraints(minWidth: double.infinity) : null,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
             border: colors['border'] != null
@@ -79,13 +84,25 @@ class AppButton extends StatelessWidget {
       case AppButtonVariant.primary:
         return {'bg': AppColors.primary, 'text': Colors.white, 'border': null};
       case AppButtonVariant.secondary:
-        return {'bg': AppColors.primarySurface, 'text': AppColors.primary, 'border': null};
+        return {
+          'bg': AppColors.primarySurface,
+          'text': AppColors.primary,
+          'border': null
+        };
       case AppButtonVariant.outlined:
-        return {'bg': Colors.transparent, 'text': AppColors.primary, 'border': AppColors.primary};
+        return {
+          'bg': Colors.transparent,
+          'text': AppColors.primary,
+          'border': AppColors.primary
+        };
       case AppButtonVariant.danger:
         return {'bg': AppColors.error, 'text': Colors.white, 'border': null};
       case AppButtonVariant.ghost:
-        return {'bg': Colors.transparent, 'text': AppColors.textSecondary, 'border': AppColors.divider};
+        return {
+          'bg': Colors.transparent,
+          'text': AppColors.textSecondary,
+          'border': AppColors.divider
+        };
     }
   }
 }
@@ -135,13 +152,15 @@ class AppTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 4,
           children: [
             Text(label, style: AppTextStyles.labelLarge),
-            if (required) ...[
-              const SizedBox(width: 4),
-              Text('*', style: AppTextStyles.labelLarge.copyWith(color: AppColors.error)),
-            ],
+            if (required)
+              Text('*',
+                  style: AppTextStyles.labelLarge
+                      .copyWith(color: AppColors.error)),
           ],
         ),
         const SizedBox(height: 6),
@@ -165,7 +184,8 @@ class AppTextField extends StatelessWidget {
             prefixIcon: prefixIcon,
             suffixIcon: suffixIcon,
             filled: true,
-            fillColor: enabled ? AppColors.surfaceVariant : AppColors.disabledSurface,
+            fillColor:
+                enabled ? AppColors.surfaceVariant : AppColors.disabledSurface,
           ),
         ),
       ],
@@ -201,7 +221,9 @@ class AppMoneyField extends StatelessWidget {
       controller: controller,
       validator: validator,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,0}'))],
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,0}'))
+      ],
       onChanged: onChanged,
       enabled: enabled,
       required: required,
@@ -213,7 +235,7 @@ class AppMoneyField extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(AppConstants.currency,
-          style: AppTextStyles.labelLarge.copyWith(color: AppColors.primary)),
+            style: AppTextStyles.labelLarge.copyWith(color: AppColors.primary)),
       ),
     );
   }
@@ -248,13 +270,15 @@ class AppDropdown<T> extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 4,
           children: [
             Text(label, style: AppTextStyles.labelLarge),
-            if (required) ...[
-              const SizedBox(width: 4),
-              Text('*', style: AppTextStyles.labelLarge.copyWith(color: AppColors.error)),
-            ],
+            if (required)
+              Text('*',
+                  style: AppTextStyles.labelLarge
+                      .copyWith(color: AppColors.error)),
           ],
         ),
         const SizedBox(height: 6),
@@ -267,11 +291,13 @@ class AppDropdown<T> extends StatelessWidget {
           decoration: InputDecoration(
             hintText: hint ?? 'Sélectionner...',
             filled: true,
-            fillColor: enabled ? AppColors.surfaceVariant : AppColors.disabledSurface,
+            fillColor:
+                enabled ? AppColors.surfaceVariant : AppColors.disabledSurface,
           ),
           dropdownColor: AppColors.surface,
           borderRadius: BorderRadius.circular(12),
-          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.textSecondary),
+          icon: const Icon(Icons.keyboard_arrow_down_rounded,
+              color: AppColors.textSecondary),
         ),
       ],
     );
@@ -321,7 +347,8 @@ class _AppDatePickerState extends State<AppDatePicker> {
   void didUpdateWidget(AppDatePicker oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.value != oldWidget.value && widget.value != null) {
-      _controller.text = DateFormat(AppConstants.dateFormat).format(widget.value!);
+      _controller.text =
+          DateFormat(AppConstants.dateFormat).format(widget.value!);
     }
   }
 
@@ -355,7 +382,8 @@ class _AppDatePickerState extends State<AppDatePicker> {
       enabled: widget.enabled,
       required: widget.required,
       onTap: _pickDate,
-      suffixIcon: const Icon(Icons.calendar_today_rounded, size: 18, color: AppColors.textSecondary),
+      suffixIcon: const Icon(Icons.calendar_today_rounded,
+          size: 18, color: AppColors.textSecondary),
     );
   }
 }
@@ -385,7 +413,10 @@ class AppSectionCard extends StatelessWidget {
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: AppColors.shadow, blurRadius: 8, offset: const Offset(0, 2)),
+          BoxShadow(
+              color: AppColors.shadow,
+              blurRadius: 8,
+              offset: const Offset(0, 2)),
         ],
       ),
       child: Column(
@@ -405,7 +436,8 @@ class AppSectionCard extends StatelessWidget {
                       color: (iconColor ?? AppColors.primary).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(icon, size: 18, color: iconColor ?? AppColors.primary),
+                    child: Icon(icon,
+                        size: 18, color: iconColor ?? AppColors.primary),
                   ),
                   const SizedBox(width: 10),
                 ],
@@ -451,9 +483,11 @@ class AppSummaryRow extends StatelessWidget {
         children: [
           Text(label, style: AppTextStyles.bodyMedium),
           Text(value,
-            style: isBold
-                ? AppTextStyles.titleLarge.copyWith(color: valueColor ?? AppColors.textPrimary)
-                : AppTextStyles.titleMedium.copyWith(color: valueColor ?? AppColors.textPrimary)),
+              style: isBold
+                  ? AppTextStyles.titleLarge
+                      .copyWith(color: valueColor ?? AppColors.textPrimary)
+                  : AppTextStyles.titleMedium
+                      .copyWith(color: valueColor ?? AppColors.textPrimary)),
         ],
       ),
     );
@@ -476,7 +510,8 @@ class AppSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = backgroundColor ?? (color ?? AppColors.primary).withOpacity(0.08);
+    final bg =
+        backgroundColor ?? (color ?? AppColors.primary).withOpacity(0.08);
     final borderColor = (color ?? AppColors.primary).withOpacity(0.3);
 
     return Container(
@@ -490,7 +525,8 @@ class AppSummaryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title,
-            style: AppTextStyles.headlineSmall.copyWith(color: color ?? AppColors.primary)),
+              style: AppTextStyles.headlineSmall
+                  .copyWith(color: color ?? AppColors.primary)),
           const SizedBox(height: 10),
           const Divider(color: AppColors.divider),
           ...rows,
@@ -532,13 +568,17 @@ class AppStatusBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 6, height: 6,
-            decoration: BoxDecoration(color: colors['dot'], shape: BoxShape.circle),
+            width: 6,
+            height: 6,
+            decoration:
+                BoxDecoration(color: colors['dot'], shape: BoxShape.circle),
           ),
           const SizedBox(width: 5),
           Text(label,
-            style: (small ? AppTextStyles.bodySmall : AppTextStyles.labelLarge)
-                .copyWith(color: colors['text'], fontWeight: FontWeight.w600)),
+              style:
+                  (small ? AppTextStyles.bodySmall : AppTextStyles.labelLarge)
+                      .copyWith(
+                          color: colors['text'], fontWeight: FontWeight.w600)),
         ],
       ),
     );
@@ -547,15 +587,35 @@ class AppStatusBadge extends StatelessWidget {
   Map<String, Color> _getColors() {
     switch (status) {
       case BadgeStatus.success:
-        return {'bg': AppColors.successSurface, 'text': AppColors.success, 'dot': AppColors.success};
+        return {
+          'bg': AppColors.successSurface,
+          'text': AppColors.success,
+          'dot': AppColors.success
+        };
       case BadgeStatus.warning:
-        return {'bg': AppColors.warningSurface, 'text': AppColors.warning, 'dot': AppColors.warning};
+        return {
+          'bg': AppColors.warningSurface,
+          'text': AppColors.warning,
+          'dot': AppColors.warning
+        };
       case BadgeStatus.error:
-        return {'bg': AppColors.errorSurface, 'text': AppColors.error, 'dot': AppColors.error};
+        return {
+          'bg': AppColors.errorSurface,
+          'text': AppColors.error,
+          'dot': AppColors.error
+        };
       case BadgeStatus.info:
-        return {'bg': AppColors.infoSurface, 'text': AppColors.info, 'dot': AppColors.info};
+        return {
+          'bg': AppColors.infoSurface,
+          'text': AppColors.info,
+          'dot': AppColors.info
+        };
       case BadgeStatus.neutral:
-        return {'bg': AppColors.surfaceVariant, 'text': AppColors.textSecondary, 'dot': AppColors.disabled};
+        return {
+          'bg': AppColors.surfaceVariant,
+          'text': AppColors.textSecondary,
+          'dot': AppColors.disabled
+        };
     }
   }
 }
@@ -566,7 +626,8 @@ class AppFilePicker extends StatefulWidget {
   final String label;
   final void Function(String? path)? onFileSelected;
 
-  const AppFilePicker({super.key, this.label = 'Justificatif', this.onFileSelected});
+  const AppFilePicker(
+      {super.key, this.label = 'Justificatif', this.onFileSelected});
 
   @override
   State<AppFilePicker> createState() => _AppFilePickerState();
@@ -595,7 +656,8 @@ class _AppFilePickerState extends State<AppFilePicker> {
               color: AppColors.surfaceVariant,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: _fileName != null ? AppColors.primary : AppColors.divider,
+                color:
+                    _fileName != null ? AppColors.primary : AppColors.divider,
                 width: 1.5,
                 style: BorderStyle.solid,
               ),
@@ -605,12 +667,18 @@ class _AppFilePickerState extends State<AppFilePicker> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: _fileName != null ? AppColors.primarySurface : AppColors.divider,
+                    color: _fileName != null
+                        ? AppColors.primarySurface
+                        : AppColors.divider,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
-                    _fileName != null ? Icons.check_circle_rounded : Icons.upload_file_rounded,
-                    color: _fileName != null ? AppColors.primary : AppColors.textSecondary,
+                    _fileName != null
+                        ? Icons.check_circle_rounded
+                        : Icons.upload_file_rounded,
+                    color: _fileName != null
+                        ? AppColors.primary
+                        : AppColors.textSecondary,
                     size: 22,
                   ),
                 ),
@@ -622,17 +690,24 @@ class _AppFilePickerState extends State<AppFilePicker> {
                       Text(
                         _fileName ?? AppStrings.addPhoto,
                         style: AppTextStyles.titleMedium.copyWith(
-                          color: _fileName != null ? AppColors.primary : AppColors.textSecondary,
+                          color: _fileName != null
+                              ? AppColors.primary
+                              : AppColors.textSecondary,
                         ),
                       ),
-                      Text('Photo, image ou scan du reçu', style: AppTextStyles.bodySmall),
+                      Text('Photo, image ou scan du reçu',
+                          style: AppTextStyles.bodySmall),
                     ],
                   ),
                 ),
                 if (_fileName != null)
                   IconButton(
-                    icon: const Icon(Icons.close_rounded, size: 18, color: AppColors.textSecondary),
-                    onPressed: () => setState(() { _fileName = null; widget.onFileSelected?.call(null); }),
+                    icon: const Icon(Icons.close_rounded,
+                        size: 18, color: AppColors.textSecondary),
+                    onPressed: () => setState(() {
+                      _fileName = null;
+                      widget.onFileSelected?.call(null);
+                    }),
                   ),
               ],
             ),
@@ -667,11 +742,14 @@ class AppLoadingOverlay extends StatelessWidget {
             color: Colors.black.withOpacity(0.35),
             child: Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
                 decoration: BoxDecoration(
                   color: AppColors.surface,
                   borderRadius: BorderRadius.circular(20),
-                  boxShadow: [BoxShadow(color: AppColors.shadowMedium, blurRadius: 20)],
+                  boxShadow: [
+                    BoxShadow(color: AppColors.shadowMedium, blurRadius: 20)
+                  ],
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -726,15 +804,19 @@ class AppEmptyState extends StatelessWidget {
               child: Icon(icon, size: 48, color: AppColors.textTertiary),
             ),
             const SizedBox(height: 20),
-            Text(title, style: AppTextStyles.headlineSmall.copyWith(color: AppColors.textSecondary),
-              textAlign: TextAlign.center),
+            Text(title,
+                style: AppTextStyles.headlineSmall
+                    .copyWith(color: AppColors.textSecondary),
+                textAlign: TextAlign.center),
             if (subtitle != null) ...[
               const SizedBox(height: 8),
-              Text(subtitle!, style: AppTextStyles.bodyMedium, textAlign: TextAlign.center),
+              Text(subtitle!,
+                  style: AppTextStyles.bodyMedium, textAlign: TextAlign.center),
             ],
             if (actionLabel != null && onAction != null) ...[
               const SizedBox(height: 24),
-              AppButton(label: actionLabel!, onPressed: onAction, expanded: false),
+              AppButton(
+                  label: actionLabel!, onPressed: onAction, expanded: false),
             ],
           ],
         ),
@@ -775,8 +857,11 @@ class AppConfirmDialog extends StatelessWidget {
     return showDialog<bool>(
       context: context,
       builder: (_) => AppConfirmDialog(
-        title: title, content: content, onConfirm: onConfirm,
-        confirmLabel: confirmLabel, cancelLabel: cancelLabel,
+        title: title,
+        content: content,
+        onConfirm: onConfirm,
+        confirmLabel: confirmLabel,
+        cancelLabel: cancelLabel,
         confirmColor: confirmColor,
       ),
     );
@@ -812,7 +897,10 @@ class AppConfirmDialog extends StatelessWidget {
                     variant: confirmColor == AppColors.error
                         ? AppButtonVariant.danger
                         : AppButtonVariant.primary,
-                    onPressed: () { Navigator.pop(context, true); onConfirm(); },
+                    onPressed: () {
+                      Navigator.pop(context, true);
+                      onConfirm();
+                    },
                   ),
                 ),
               ],
@@ -855,8 +943,15 @@ class DashboardMetricCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: AppColors.shadow, blurRadius: 8, offset: const Offset(0, 2))],
-          border: isAlert ? Border.all(color: color.withOpacity(0.3), width: 1.5) : null,
+          boxShadow: [
+            BoxShadow(
+                color: AppColors.shadow,
+                blurRadius: 8,
+                offset: const Offset(0, 2))
+          ],
+          border: isAlert
+              ? Border.all(color: color.withOpacity(0.3), width: 1.5)
+              : null,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -874,20 +969,25 @@ class DashboardMetricCard extends StatelessWidget {
                 ),
                 if (isAlert)
                   Container(
-                    width: 10, height: 10,
-                    decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                    width: 10,
+                    height: 10,
+                    decoration:
+                        BoxDecoration(color: color, shape: BoxShape.circle),
                   ),
               ],
             ),
             const SizedBox(height: 12),
             Text(value,
-              style: AppTextStyles.moneyMedium.copyWith(color: AppColors.textPrimary),
-              maxLines: 1, overflow: TextOverflow.ellipsis),
+                style: AppTextStyles.moneyMedium
+                    .copyWith(color: AppColors.textPrimary),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis),
             const SizedBox(height: 4),
             Text(title, style: AppTextStyles.bodySmall),
             if (subtitle != null) ...[
               const SizedBox(height: 2),
-              Text(subtitle!, style: AppTextStyles.bodySmall.copyWith(color: color)),
+              Text(subtitle!,
+                  style: AppTextStyles.bodySmall.copyWith(color: color)),
             ],
           ],
         ),
@@ -919,7 +1019,8 @@ class QuickActionButton extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            width: 60, height: 60,
+            width: 60,
+            height: 60,
             decoration: BoxDecoration(
               color: color.withOpacity(0.12),
               borderRadius: BorderRadius.circular(16),
@@ -928,8 +1029,11 @@ class QuickActionButton extends StatelessWidget {
             child: Icon(icon, color: color, size: 26),
           ),
           const SizedBox(height: 6),
-          Text(label, style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.w500),
-            textAlign: TextAlign.center, maxLines: 2),
+          Text(label,
+              style:
+                  AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.w500),
+              textAlign: TextAlign.center,
+              maxLines: 2),
         ],
       ),
     );

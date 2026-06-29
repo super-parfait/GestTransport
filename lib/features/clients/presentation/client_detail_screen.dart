@@ -19,15 +19,26 @@ class _ClientDetailScreenState extends State<ClientDetailScreen>
   static const _tabs = ['Résumé', 'Chargements', 'Paiements'];
 
   @override
-  void initState() { super.initState(); _tabController = TabController(length: _tabs.length, vsync: this); }
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: _tabs.length, vsync: this);
+  }
+
   @override
-  void dispose() { _tabController.dispose(); super.dispose(); }
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final c = widget.client;
     final balance = c['balance'] as double;
-    final balColor = balance == 0 ? AppColors.success : balance > 3000000 ? AppColors.error : AppColors.warning;
+    final balColor = balance == 0
+        ? AppColors.success
+        : balance > 3000000
+            ? AppColors.error
+            : AppColors.warning;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
@@ -41,38 +52,63 @@ class _ClientDetailScreenState extends State<ClientDetailScreen>
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: const BoxDecoration(
-                  gradient: LinearGradient(colors: [AppColors.primaryDark, AppColors.primary],
-                    begin: Alignment.topLeft, end: Alignment.bottomRight),
+                  gradient: LinearGradient(
+                      colors: [AppColors.primaryDark, AppColors.primary],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight),
                 ),
-                child: SafeArea(child: Padding(
+                child: SafeArea(
+                    child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 46, 16, 0),
                   child: Row(children: [
                     Container(
-                      width: 56, height: 56,
-                      decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), shape: BoxShape.circle),
-                      child: Center(child: Text(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          shape: BoxShape.circle),
+                      child: Center(
+                          child: Text(
                         (c['name'] as String)[0].toUpperCase(),
-                        style: AppTextStyles.headlineLarge.copyWith(color: Colors.white),
+                        style: AppTextStyles.headlineLarge
+                            .copyWith(color: Colors.white),
                       )),
                     ),
                     const SizedBox(width: 14),
-                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text(c['name'], style: AppTextStyles.headlineMedium.copyWith(color: Colors.white)),
-                      const SizedBox(height: 4),
-                      Text(c['phone'], style: AppTextStyles.bodyMedium.copyWith(color: Colors.white.withOpacity(0.8))),
-                      Text(c['address'], style: AppTextStyles.bodySmall.copyWith(color: Colors.white.withOpacity(0.7))),
-                    ])),
-                    Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                      Text(AppData.fmtMoneyFull(balance),
-                        style: AppTextStyles.headlineSmall.copyWith(color: Colors.white)),
-                      const SizedBox(height: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(color: balColor, borderRadius: BorderRadius.circular(8)),
-                        child: Text(balance == 0 ? 'À jour' : 'Débiteur',
-                          style: AppTextStyles.bodySmall.copyWith(color: Colors.white, fontWeight: FontWeight.w600)),
-                      ),
-                    ]),
+                    Expanded(
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                          Text(c['name'],
+                              style: AppTextStyles.headlineMedium
+                                  .copyWith(color: Colors.white)),
+                          const SizedBox(height: 4),
+                          Text(c['phone'],
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                  color: Colors.white.withOpacity(0.8))),
+                          Text(c['address'],
+                              style: AppTextStyles.bodySmall.copyWith(
+                                  color: Colors.white.withOpacity(0.7))),
+                        ])),
+                    Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(AppData.fmtMoneyFull(balance),
+                              style: AppTextStyles.headlineSmall
+                                  .copyWith(color: Colors.white)),
+                          const SizedBox(height: 4),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                                color: balColor,
+                                borderRadius: BorderRadius.circular(8)),
+                            child: Text(balance == 0 ? 'À jour' : 'Débiteur',
+                                style: AppTextStyles.bodySmall.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600)),
+                          ),
+                        ]),
                   ]),
                 )),
               ),
@@ -97,17 +133,26 @@ class _ClientDetailScreenState extends State<ClientDetailScreen>
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(children: [
-            Expanded(child: AppButton(
+            Expanded(
+                child: AppButton(
               label: 'Nouveau chargement',
               icon: Icons.add_box_rounded,
               variant: AppButtonVariant.outlined,
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ClientLoadingScreen())),
+              onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const ClientLoadingScreen())),
             )),
             const SizedBox(width: 10),
-            Expanded(child: AppButton(
+            Expanded(
+                child: AppButton(
               label: 'Enregistrer paiement',
               icon: Icons.payments_rounded,
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ClientPaymentScreen(prefilledClient: c['name']))),
+              onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) =>
+                          ClientPaymentScreen(prefilledClient: c['name']))),
             )),
           ]),
         ),
@@ -123,23 +168,34 @@ class _SummaryTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(padding: const EdgeInsets.all(16), children: [
-      AppSectionCard(title: 'Informations', icon: Icons.person_outline_rounded, children: [
-        _row('Nom', client['name']),
-        _row('Téléphone', client['phone']),
-        _row('Adresse', client['address']),
-      ]),
+      AppSectionCard(
+          title: 'Informations',
+          icon: Icons.person_outline_rounded,
+          children: [
+            _row('Nom', client['name']),
+            _row('Téléphone', client['phone']),
+            _row('Adresse', client['address']),
+          ]),
       const SizedBox(height: 14),
       AppSummaryCard(
         title: '📊 Compte client',
         color: AppColors.primary,
         rows: [
-          AppSummaryRow(label: 'Total facturé', value: AppData.fmtMoneyFull(client['total_credit']), valueColor: AppColors.info),
-          AppSummaryRow(label: 'Total réglé', value: AppData.fmtMoneyFull(client['total_paid']), valueColor: AppColors.success),
+          AppSummaryRow(
+              label: 'Total facturé',
+              value: AppData.fmtMoneyFull(client['total_credit']),
+              valueColor: AppColors.info),
+          AppSummaryRow(
+              label: 'Total réglé',
+              value: AppData.fmtMoneyFull(client['total_paid']),
+              valueColor: AppColors.success),
           const AppSummaryRow(label: '──────────────', value: ''),
           AppSummaryRow(
             label: 'Solde restant',
             value: AppData.fmtMoneyFull(client['balance']),
-            valueColor: (client['balance'] as double) == 0 ? AppColors.success : AppColors.error,
+            valueColor: (client['balance'] as double) == 0
+                ? AppColors.success
+                : AppColors.error,
             isBold: true,
           ),
         ],
@@ -148,12 +204,16 @@ class _SummaryTab extends StatelessWidget {
   }
 
   Widget _row(String l, String v) => Padding(
-    padding: const EdgeInsets.only(bottom: 10),
-    child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-      Text(l, style: AppTextStyles.bodyMedium),
-      Flexible(child: Text(v, style: AppTextStyles.titleMedium, textAlign: TextAlign.right)),
-    ]),
-  );
+        padding: const EdgeInsets.only(bottom: 10),
+        child:
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Text(l, style: AppTextStyles.bodyMedium),
+          Flexible(
+              child: Text(v,
+                  style: AppTextStyles.titleMedium,
+                  textAlign: TextAlign.right)),
+        ]),
+      );
 }
 
 class _LoadingsTab extends StatelessWidget {
@@ -162,7 +222,9 @@ class _LoadingsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (loadings.isEmpty) return const AppEmptyState(icon: Icons.inventory_2_rounded, title: 'Aucun chargement');
+    if (loadings.isEmpty)
+      return const AppEmptyState(
+          icon: Icons.inventory_2_rounded, title: 'Aucun chargement');
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: loadings.length,
@@ -171,20 +233,31 @@ class _LoadingsTab extends StatelessWidget {
         final l = loadings[i] as Map<String, dynamic>;
         return Container(
           padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(12),
-            boxShadow: [BoxShadow(color: AppColors.shadow, blurRadius: 6)]),
+          decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [BoxShadow(color: AppColors.shadow, blurRadius: 6)]),
           child: Row(children: [
-            Container(padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(color: AppColors.infoSurface, borderRadius: BorderRadius.circular(10)),
-              child: const Icon(Icons.inventory_2_rounded, color: AppColors.info, size: 18)),
+            Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                    color: AppColors.infoSurface,
+                    borderRadius: BorderRadius.circular(10)),
+                child: const Icon(Icons.inventory_2_rounded,
+                    color: AppColors.info, size: 18)),
             const SizedBox(width: 12),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(l['camion'], style: AppTextStyles.titleLarge),
-              Text('${l['type']} · ${l['quantity']}', style: AppTextStyles.bodySmall),
-              Text(l['date'], style: AppTextStyles.bodySmall),
-            ])),
+            Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                  Text(l['camion'], style: AppTextStyles.titleLarge),
+                  Text('${l['type']} · ${l['quantity']}',
+                      style: AppTextStyles.bodySmall),
+                  Text(l['date'], style: AppTextStyles.bodySmall),
+                ])),
             Text(AppData.fmtMoneyFull((l['montant'] as num).toDouble()),
-              style: AppTextStyles.titleMedium.copyWith(color: AppColors.info)),
+                style:
+                    AppTextStyles.titleMedium.copyWith(color: AppColors.info)),
           ]),
         );
       },
@@ -198,7 +271,9 @@ class _PaymentsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (payments.isEmpty) return const AppEmptyState(icon: Icons.payments_rounded, title: 'Aucun paiement');
+    if (payments.isEmpty)
+      return const AppEmptyState(
+          icon: Icons.payments_rounded, title: 'Aucun paiement');
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: payments.length,
@@ -207,19 +282,29 @@ class _PaymentsTab extends StatelessWidget {
         final p = payments[i] as Map<String, dynamic>;
         return Container(
           padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(12),
-            boxShadow: [BoxShadow(color: AppColors.shadow, blurRadius: 6)]),
+          decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [BoxShadow(color: AppColors.shadow, blurRadius: 6)]),
           child: Row(children: [
-            Container(padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(color: AppColors.successSurface, borderRadius: BorderRadius.circular(10)),
-              child: const Icon(Icons.payments_rounded, color: AppColors.success, size: 18)),
+            Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                    color: AppColors.successSurface,
+                    borderRadius: BorderRadius.circular(10)),
+                child: const Icon(Icons.payments_rounded,
+                    color: AppColors.success, size: 18)),
             const SizedBox(width: 12),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(p['mode'], style: AppTextStyles.titleLarge),
-              Text(p['date'], style: AppTextStyles.bodySmall),
-            ])),
+            Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                  Text(p['mode'], style: AppTextStyles.titleLarge),
+                  Text(p['date'], style: AppTextStyles.bodySmall),
+                ])),
             Text(AppData.fmtMoneyFull((p['montant'] as num).toDouble()),
-              style: AppTextStyles.titleMedium.copyWith(color: AppColors.success)),
+                style: AppTextStyles.titleMedium
+                    .copyWith(color: AppColors.success)),
           ]),
         );
       },

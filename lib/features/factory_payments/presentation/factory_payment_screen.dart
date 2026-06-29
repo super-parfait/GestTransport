@@ -11,7 +11,6 @@ class FactoryPaymentScreen extends StatefulWidget {
 
 class _FactoryPaymentScreenState extends State<FactoryPaymentScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _quarryCtrl = TextEditingController();
   final _paidByCtrl = TextEditingController();
   final _bonCtrl = TextEditingController();
   final _amountCtrl = TextEditingController();
@@ -29,7 +28,9 @@ class _FactoryPaymentScreenState extends State<FactoryPaymentScreen> {
       message: 'Enregistrement...',
       child: Scaffold(
         backgroundColor: AppColors.backgroundLight,
-        appBar: AppBar(title: const Text('Versement usine'), backgroundColor: AppColors.surface),
+        appBar: AppBar(
+            title: const Text('Versement usine'),
+            backgroundColor: AppColors.surface),
         body: Form(
           key: _formKey,
           child: ListView(
@@ -42,22 +43,40 @@ class _FactoryPaymentScreenState extends State<FactoryPaymentScreen> {
                 iconColor: AppColors.primary,
                 children: [
                   AppDropdown<String>(
-                    label: 'Carrière / Usine', required: true, hint: 'Sélectionner...',
-                    items: ['Carrière KOSSOU', 'Usine ABATTA', 'Carrière DAOUKRO']
-                        .map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                    label: 'Carrière / Usine',
+                    required: true,
+                    hint: 'Sélectionner...',
+                    items: [
+                      'Carrière KOSSOU',
+                      'Usine ABATTA',
+                      'Carrière DAOUKRO'
+                    ]
+                        .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                        .toList(),
                     onChanged: (v) => setState(() => _quarry = v),
                   ),
                   const SizedBox(height: 14),
-                  AppDatePicker(label: 'Date', value: _date, required: true,
-                    onChanged: (d) => setState(() => _date = d)),
+                  AppDatePicker(
+                      label: 'Date',
+                      value: _date,
+                      required: true,
+                      onChanged: (d) => setState(() => _date = d)),
                   const SizedBox(height: 14),
-                  AppTextField(label: 'Nom du verseur', hint: 'Prénom et nom',
-                    controller: _paidByCtrl, required: true,
-                    validator: (v) => v?.isEmpty == true ? 'Obligatoire' : null),
+                  AppTextField(
+                      label: 'Nom du verseur',
+                      hint: 'Prénom et nom',
+                      controller: _paidByCtrl,
+                      required: true,
+                      validator: (v) =>
+                          v?.isEmpty == true ? 'Obligatoire' : null),
                   const SizedBox(height: 14),
-                  AppTextField(label: 'Numéro de bon', hint: 'BON-2024-001',
-                    controller: _bonCtrl, required: true,
-                    validator: (v) => v?.isEmpty == true ? 'Obligatoire' : null),
+                  AppTextField(
+                      label: 'Numéro de bon',
+                      hint: 'BON-2024-001',
+                      controller: _bonCtrl,
+                      required: true,
+                      validator: (v) =>
+                          v?.isEmpty == true ? 'Obligatoire' : null),
                 ],
               ),
               const SizedBox(height: 16),
@@ -68,9 +87,15 @@ class _FactoryPaymentScreenState extends State<FactoryPaymentScreen> {
                 icon: Icons.payments_rounded,
                 iconColor: AppColors.success,
                 children: [
-                  AppMoneyField(label: 'Montant versé', controller: _amountCtrl, required: true),
+                  AppMoneyField(
+                      label: 'Montant versé',
+                      controller: _amountCtrl,
+                      required: true),
                   const SizedBox(height: 14),
-                  AppMoneyField(label: 'Prix actuel (par tonne)', controller: _priceCtrl, required: true),
+                  AppMoneyField(
+                      label: 'Prix actuel (par tonne)',
+                      controller: _priceCtrl,
+                      required: true),
                   const SizedBox(height: 14),
                   AppMoneyField(label: 'Ristourne', controller: _discountCtrl),
                   const SizedBox(height: 14),
@@ -101,18 +126,31 @@ class _FactoryPaymentScreenState extends State<FactoryPaymentScreen> {
                 color: AppColors.primary,
                 rows: [
                   AppSummaryRow(label: 'Carrière', value: _quarry ?? '—'),
-                  AppSummaryRow(label: 'Montant', value: '${_amountCtrl.text.isEmpty ? "0" : _amountCtrl.text} F'),
-                  AppSummaryRow(label: 'Quantité', value: '${_quantityCtrl.text.isEmpty ? "0" : _quantityCtrl.text} T'),
-                  AppSummaryRow(label: 'Verseur', value: _paidByCtrl.text.isEmpty ? '—' : _paidByCtrl.text),
+                  AppSummaryRow(
+                      label: 'Montant',
+                      value:
+                          '${_amountCtrl.text.isEmpty ? "0" : _amountCtrl.text} F'),
+                  AppSummaryRow(
+                      label: 'Quantité',
+                      value:
+                          '${_quantityCtrl.text.isEmpty ? "0" : _quantityCtrl.text} T'),
+                  AppSummaryRow(
+                      label: 'Verseur',
+                      value: _paidByCtrl.text.isEmpty ? '—' : _paidByCtrl.text),
                 ],
               ),
               const SizedBox(height: 20),
 
-              AppButton(label: 'Valider le versement', icon: Icons.check_circle_rounded,
-                onPressed: _submit),
+              AppButton(
+                  label: 'Valider le versement',
+                  icon: Icons.check_circle_rounded,
+                  onPressed: _submit),
               const SizedBox(height: 10),
-              AppButton(label: 'Enregistrer brouillon', variant: AppButtonVariant.outlined,
-                icon: Icons.save_outlined, onPressed: () {}),
+              AppButton(
+                  label: 'Enregistrer brouillon',
+                  variant: AppButtonVariant.outlined,
+                  icon: Icons.save_outlined,
+                  onPressed: () {}),
               const SizedBox(height: 32),
             ],
           ),
@@ -128,8 +166,10 @@ class _FactoryPaymentScreenState extends State<FactoryPaymentScreen> {
     if (mounted) {
       setState(() => _isSubmitting = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: const Text('Versement enregistré !'),
-          backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
+        SnackBar(
+            content: const Text('Versement enregistré !'),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating),
       );
       Navigator.pop(context);
     }

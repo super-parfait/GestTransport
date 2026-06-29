@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/theme/app_theme.dart';
 import '../core/constants/app_constants.dart';
-import '../core/widgets/app_widgets.dart';
 import 'loadings/presentation/loading_screen.dart';
 import 'factory_payments/presentation/factory_payment_screen.dart';
 import 'client_payments/presentation/client_payment_screen.dart';
@@ -20,7 +19,8 @@ class OperationsScreen extends StatelessWidget {
         icon: Icons.factory_rounded,
         color: AppColors.primary,
         badge: null,
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FactoryPaymentScreen())),
+        onTap: () => Navigator.push(context,
+            MaterialPageRoute(builder: (_) => const FactoryPaymentScreen())),
       ),
       _OpCard(
         title: AppStrings.clientLoading,
@@ -29,7 +29,8 @@ class OperationsScreen extends StatelessWidget {
         color: AppColors.info,
         badge: 'Important',
         badgeColor: AppColors.info,
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ClientLoadingScreen())),
+        onTap: () => Navigator.push(context,
+            MaterialPageRoute(builder: (_) => const ClientLoadingScreen())),
       ),
       _OpCard(
         title: AppStrings.clientPayment,
@@ -37,7 +38,8 @@ class OperationsScreen extends StatelessWidget {
         icon: Icons.payments_rounded,
         color: AppColors.success,
         badge: null,
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ClientPaymentScreen())),
+        onTap: () => Navigator.push(context,
+            MaterialPageRoute(builder: (_) => const ClientPaymentScreen())),
       ),
       _OpCard(
         title: AppStrings.expenses,
@@ -45,7 +47,8 @@ class OperationsScreen extends StatelessWidget {
         icon: Icons.build_rounded,
         color: AppColors.warning,
         badge: null,
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ChargesScreen())),
+        onTap: () => Navigator.push(
+            context, MaterialPageRoute(builder: (_) => const ChargesScreen())),
       ),
       _OpCard(
         title: AppStrings.revenue,
@@ -53,7 +56,8 @@ class OperationsScreen extends StatelessWidget {
         icon: Icons.add_card_rounded,
         color: AppColors.success,
         badge: null,
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RevenueScreen())),
+        onTap: () => Navigator.push(
+            context, MaterialPageRoute(builder: (_) => const RevenueScreen())),
       ),
     ];
 
@@ -71,13 +75,12 @@ class OperationsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text('Choisissez une opération',
-            style: AppTextStyles.bodyMedium),
+          Text('Choisissez une opération', style: AppTextStyles.bodyMedium),
           const SizedBox(height: 16),
           ...ops.map((op) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: _buildOpCard(op, context),
-          )),
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _buildOpCard(op, context),
+              )),
         ],
       ),
     );
@@ -91,12 +94,18 @@ class OperationsScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: AppColors.shadow, blurRadius: 8, offset: const Offset(0, 2))],
+          boxShadow: [
+            BoxShadow(
+                color: AppColors.shadow,
+                blurRadius: 8,
+                offset: const Offset(0, 2))
+          ],
         ),
         child: Row(
           children: [
             Container(
-              width: 56, height: 56,
+              width: 56,
+              height: 56,
               decoration: BoxDecoration(
                 color: op.color.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(14),
@@ -114,14 +123,17 @@ class OperationsScreen extends StatelessWidget {
                       if (op.badge != null) ...[
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: (op.badgeColor ?? op.color).withOpacity(0.15),
+                            color:
+                                (op.badgeColor ?? op.color).withOpacity(0.15),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(op.badge!,
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: op.badgeColor ?? op.color, fontWeight: FontWeight.w600)),
+                              style: AppTextStyles.bodySmall.copyWith(
+                                  color: op.badgeColor ?? op.color,
+                                  fontWeight: FontWeight.w600)),
                         ),
                       ],
                     ],
@@ -131,7 +143,8 @@ class OperationsScreen extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.textTertiary),
+            Icon(Icons.arrow_forward_ios_rounded,
+                size: 16, color: AppColors.textTertiary),
           ],
         ),
       ),
@@ -146,6 +159,12 @@ class _OpCard {
   final String? badge;
   final Color? badgeColor;
   final VoidCallback onTap;
-  _OpCard({required this.title, required this.description, required this.icon,
-    required this.color, required this.onTap, this.badge, this.badgeColor});
+  _OpCard(
+      {required this.title,
+      required this.description,
+      required this.icon,
+      required this.color,
+      required this.onTap,
+      this.badge,
+      this.badgeColor});
 }

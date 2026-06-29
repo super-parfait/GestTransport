@@ -20,14 +20,25 @@ class AppConstants {
 
   // Payment methods
   static const List<String> paymentMethods = [
-    'Espèces', 'Wave', 'Orange Money', 'MTN', 'Moov', 'Banque', 'Chèque', 'Autre',
+    'Espèces',
+    'Wave',
+    'Orange Money',
+    'MTN',
+    'Moov',
+    'Banque',
+    'Chèque',
+    'Autre',
   ];
 
   // Material types
   static const List<String> materialTypes = ['Sable', 'Gravier', 'Transport'];
 
   // Document types
-  static const List<String> documentTypes = ['Assurance', 'Visite technique', 'Patente'];
+  static const List<String> documentTypes = [
+    'Assurance',
+    'Visite technique',
+    'Patente'
+  ];
 
   // Truck statuses
   static const Map<String, String> truckStatuses = {
@@ -42,7 +53,10 @@ class AppConstants {
   static const List<String> revenueTypes = ['Par voyage', 'Par semaine'];
 
   // Oil change types
-  static const List<String> oilChangeTypes = ['Par kilométrage', 'Par semaines'];
+  static const List<String> oilChangeTypes = [
+    'Par kilométrage',
+    'Par semaines'
+  ];
 
   // Alert thresholds
   static const int documentExpiryWarningDays = 30;
@@ -60,7 +74,8 @@ class AppStrings {
   static const String phoneOrId = 'Téléphone ou Identifiant';
   static const String password = 'Mot de passe';
   static const String connecting = 'Connexion en cours...';
-  static const String loginError = 'Identifiants incorrects. Veuillez réessayer.';
+  static const String loginError =
+      'Identifiants incorrects. Veuillez réessayer.';
 
   // Navigation
   static const String home = 'Accueil';

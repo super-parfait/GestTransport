@@ -19,13 +19,16 @@ class _RevenueScreenState extends State<RevenueScreen> {
   DateTime _dateTo = DateTime.now();
 
   double get _totalTrips =>
-      (double.tryParse(_tripsCtrl.text) ?? 0) * (double.tryParse(_tripValueCtrl.text) ?? 0);
+      (double.tryParse(_tripsCtrl.text) ?? 0) *
+      (double.tryParse(_tripValueCtrl.text) ?? 0);
 
   // Mock expenses from expenses module
   double get _linkedExpenses => 185000;
 
   double get _balance {
-    final total = _type == 'trip' ? _totalTrips : (double.tryParse(_amountCtrl.text) ?? 0);
+    final total = _type == 'trip'
+        ? _totalTrips
+        : (double.tryParse(_amountCtrl.text) ?? 0);
     return total - _linkedExpenses;
   }
 
@@ -33,7 +36,8 @@ class _RevenueScreenState extends State<RevenueScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
-      appBar: AppBar(title: const Text('Recettes'), backgroundColor: AppColors.surface),
+      appBar: AppBar(
+          title: const Text('Recettes'), backgroundColor: AppColors.surface),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -60,27 +64,40 @@ class _RevenueScreenState extends State<RevenueScreen> {
               icon: Icons.info_outline_rounded,
               children: [
                 if (_type == 'trip') ...[
-                  AppDatePicker(label: 'Date', value: _dateFrom, required: true,
-                    onChanged: (d) => setState(() => _dateFrom = d)),
+                  AppDatePicker(
+                      label: 'Date',
+                      value: _dateFrom,
+                      required: true,
+                      onChanged: (d) => setState(() => _dateFrom = d)),
                 ] else ...[
-                  AppDatePicker(label: 'Période du', value: _dateFrom, required: true,
-                    onChanged: (d) => setState(() => _dateFrom = d)),
+                  AppDatePicker(
+                      label: 'Période du',
+                      value: _dateFrom,
+                      required: true,
+                      onChanged: (d) => setState(() => _dateFrom = d)),
                   const SizedBox(height: 14),
-                  AppDatePicker(label: 'Période au', value: _dateTo, required: true,
-                    onChanged: (d) => setState(() => _dateTo = d)),
+                  AppDatePicker(
+                      label: 'Période au',
+                      value: _dateTo,
+                      required: true,
+                      onChanged: (d) => setState(() => _dateTo = d)),
                 ],
                 const SizedBox(height: 14),
                 AppDropdown<String>(
-                  label: 'Camion', required: true,
+                  label: 'Camion',
+                  required: true,
                   items: ['CI-1234-AB', 'CI-5678-CD', 'CI-9012-EF']
-                      .map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                      .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                      .toList(),
                   onChanged: (_) {},
                 ),
                 const SizedBox(height: 14),
                 AppDropdown<String>(
-                  label: 'Chauffeur', required: true,
+                  label: 'Chauffeur',
+                  required: true,
                   items: ['KONAN Yao', 'OUATTARA Issa', 'BAMBA Mamadou']
-                      .map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                      .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                      .toList(),
                   onChanged: (_) {},
                 ),
               ],
@@ -93,12 +110,19 @@ class _RevenueScreenState extends State<RevenueScreen> {
               iconColor: AppColors.success,
               children: [
                 if (_type == 'trip') ...[
-                  AppTextField(label: 'Nombre de voyages', hint: '0',
-                    controller: _tripsCtrl, keyboardType: TextInputType.number,
-                    required: true, onChanged: (_) => setState(() {})),
+                  AppTextField(
+                      label: 'Nombre de voyages',
+                      hint: '0',
+                      controller: _tripsCtrl,
+                      keyboardType: TextInputType.number,
+                      required: true,
+                      onChanged: (_) => setState(() {})),
                   const SizedBox(height: 14),
-                  AppMoneyField(label: 'Valeur par voyage', controller: _tripValueCtrl,
-                    required: true, onChanged: (_) => setState(() {})),
+                  AppMoneyField(
+                      label: 'Valeur par voyage',
+                      controller: _tripValueCtrl,
+                      required: true,
+                      onChanged: (_) => setState(() {})),
                   const SizedBox(height: 10),
                   Container(
                     padding: const EdgeInsets.all(12),
@@ -111,16 +135,23 @@ class _RevenueScreenState extends State<RevenueScreen> {
                       children: [
                         Text('Total voyages', style: AppTextStyles.titleMedium),
                         Text('${_totalTrips.toStringAsFixed(0)} F',
-                          style: AppTextStyles.moneySmall.copyWith(color: AppColors.success)),
+                            style: AppTextStyles.moneySmall
+                                .copyWith(color: AppColors.success)),
                       ],
                     ),
                   ),
                 ] else ...[
-                  AppMoneyField(label: 'Montant reçu', controller: _amountCtrl,
-                    required: true, onChanged: (_) => setState(() {})),
+                  AppMoneyField(
+                      label: 'Montant reçu',
+                      controller: _amountCtrl,
+                      required: true,
+                      onChanged: (_) => setState(() {})),
                 ],
                 const SizedBox(height: 14),
-                AppTextField(label: 'Reçu par', hint: 'Nom de la personne', controller: _receivedByCtrl),
+                AppTextField(
+                    label: 'Reçu par',
+                    hint: 'Nom de la personne',
+                    controller: _receivedByCtrl),
               ],
             ),
             const SizedBox(height: 16),
@@ -138,23 +169,29 @@ class _RevenueScreenState extends State<RevenueScreen> {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.link_rounded, color: AppColors.error, size: 18),
+                      const Icon(Icons.link_rounded,
+                          color: AppColors.error, size: 18),
                       const SizedBox(width: 8),
                       Text('Dépenses liées (depuis le module Charges)',
-                        style: AppTextStyles.titleMedium.copyWith(color: AppColors.error)),
+                          style: AppTextStyles.titleMedium
+                              .copyWith(color: AppColors.error)),
                     ],
                   ),
                   const SizedBox(height: 4),
-                  Text('Ces dépenses sont récupérées automatiquement. Elles ne créent pas de nouveau mouvement.',
-                    style: AppTextStyles.bodySmall.copyWith(color: AppColors.error)),
+                  Text(
+                      'Ces dépenses sont récupérées automatiquement. Elles ne créent pas de nouveau mouvement.',
+                      style: AppTextStyles.bodySmall
+                          .copyWith(color: AppColors.error)),
                   const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Total dépenses ${_type == 'week' ? 'de la période' : 'du voyage'}',
-                        style: AppTextStyles.bodyMedium),
+                      Text(
+                          'Total dépenses ${_type == 'week' ? 'de la période' : 'du voyage'}',
+                          style: AppTextStyles.bodyMedium),
                       Text('${_linkedExpenses.toStringAsFixed(0)} F',
-                        style: AppTextStyles.titleLarge.copyWith(color: AppColors.error)),
+                          style: AppTextStyles.titleLarge
+                              .copyWith(color: AppColors.error)),
                     ],
                   ),
                 ],
@@ -164,24 +201,34 @@ class _RevenueScreenState extends State<RevenueScreen> {
 
             // Balance summary
             AppSummaryCard(
-              title: '💰 Solde ${_type == 'week' ? 'de la semaine' : 'du voyage'}',
+              title:
+                  '💰 Solde ${_type == 'week' ? 'de la semaine' : 'du voyage'}',
               color: _balance >= 0 ? AppColors.success : AppColors.error,
               rows: [
                 AppSummaryRow(
                   label: _type == 'trip' ? 'Total voyages' : 'Montant reçu',
-                  value: '${(_type == 'trip' ? _totalTrips : (double.tryParse(_amountCtrl.text) ?? 0)).toStringAsFixed(0)} F',
+                  value:
+                      '${(_type == 'trip' ? _totalTrips : (double.tryParse(_amountCtrl.text) ?? 0)).toStringAsFixed(0)} F',
                   valueColor: AppColors.success,
                 ),
-                AppSummaryRow(label: 'Dépenses liées', value: '${_linkedExpenses.toStringAsFixed(0)} F',
-                  valueColor: AppColors.error),
-                AppSummaryRow(label: 'Solde net', value: '${_balance.toStringAsFixed(0)} F',
-                  valueColor: _balance >= 0 ? AppColors.success : AppColors.error,
-                  isBold: true),
+                AppSummaryRow(
+                    label: 'Dépenses liées',
+                    value: '${_linkedExpenses.toStringAsFixed(0)} F',
+                    valueColor: AppColors.error),
+                AppSummaryRow(
+                    label: 'Solde net',
+                    value: '${_balance.toStringAsFixed(0)} F',
+                    valueColor:
+                        _balance >= 0 ? AppColors.success : AppColors.error,
+                    isBold: true),
               ],
             ),
             const SizedBox(height: 20),
 
-            AppButton(label: 'Enregistrer la recette', icon: Icons.check_circle_rounded, onPressed: () {}),
+            AppButton(
+                label: 'Enregistrer la recette',
+                icon: Icons.check_circle_rounded,
+                onPressed: () {}),
           ],
           const SizedBox(height: 32),
         ],
@@ -198,7 +245,9 @@ class _RevenueScreenState extends State<RevenueScreen> {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.success.withOpacity(0.1) : AppColors.surfaceVariant,
+            color: isSelected
+                ? AppColors.success.withOpacity(0.1)
+                : AppColors.surfaceVariant,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: isSelected ? AppColors.success : AppColors.divider,
@@ -207,12 +256,17 @@ class _RevenueScreenState extends State<RevenueScreen> {
           ),
           child: Column(
             children: [
-              Icon(icon, color: isSelected ? AppColors.success : AppColors.textTertiary, size: 26),
+              Icon(icon,
+                  color:
+                      isSelected ? AppColors.success : AppColors.textTertiary,
+                  size: 26),
               const SizedBox(height: 6),
               Text(label,
-                style: AppTextStyles.titleMedium.copyWith(
-                  color: isSelected ? AppColors.success : AppColors.textSecondary),
-                textAlign: TextAlign.center),
+                  style: AppTextStyles.titleMedium.copyWith(
+                      color: isSelected
+                          ? AppColors.success
+                          : AppColors.textSecondary),
+                  textAlign: TextAlign.center),
             ],
           ),
         ),

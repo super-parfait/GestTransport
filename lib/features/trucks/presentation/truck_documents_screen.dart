@@ -9,20 +9,27 @@ class TruckDocumentsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final docs = [
-      _Doc('Assurance', Icons.security_rounded, truck['assurance_expiry'] as String),
-      _Doc('Visite technique', Icons.fact_check_rounded, truck['visite_expiry'] as String),
-      _Doc('Patente', Icons.receipt_long_rounded, truck['patente_expiry'] as String),
+      _Doc('Assurance', Icons.security_rounded,
+          truck['assurance_expiry'] as String),
+      _Doc('Visite technique', Icons.fact_check_rounded,
+          truck['visite_expiry'] as String),
+      _Doc('Patente', Icons.receipt_long_rounded,
+          truck['patente_expiry'] as String),
     ];
 
     return ListView(padding: const EdgeInsets.all(16), children: [
-      Text('Documents du ${truck['plate']}', style: AppTextStyles.headlineSmall),
+      Text('Documents du ${truck['plate']}',
+          style: AppTextStyles.headlineSmall),
       const SizedBox(height: 12),
       ...docs.map((d) => Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: _DocCard(doc: d),
-      )),
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _DocCard(doc: d),
+          )),
       const SizedBox(height: 8),
-      AppButton(label: 'Renouveler un document', icon: Icons.upload_file_rounded, onPressed: () {}),
+      AppButton(
+          label: 'Renouveler un document',
+          icon: Icons.upload_file_rounded,
+          onPressed: () {}),
     ]);
   }
 }
@@ -51,15 +58,20 @@ class _DocCard extends StatelessWidget {
       child: Row(children: [
         Container(
           padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+          decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12)),
           child: Icon(doc.icon, color: color, size: 24),
         ),
         const SizedBox(width: 14),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Expanded(
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(doc.title, style: AppTextStyles.titleLarge),
           const SizedBox(height: 4),
           Row(children: [
-            const Icon(Icons.calendar_today_rounded, size: 13, color: AppColors.textSecondary),
+            const Icon(Icons.calendar_today_rounded,
+                size: 13, color: AppColors.textSecondary),
             const SizedBox(width: 4),
             Text('Expire le ${doc.expiry}', style: AppTextStyles.bodySmall),
           ]),
@@ -72,12 +84,15 @@ class _DocCard extends StatelessWidget {
   String _computeStatus(String expiry) {
     try {
       final parts = expiry.split('/');
-      final date = DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+      final date = DateTime(
+          int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
       final now = DateTime.now();
       if (date.isBefore(now)) return 'expired';
       if (date.difference(now).inDays < 30) return 'soon';
       return 'valid';
-    } catch (_) { return 'valid'; }
+    } catch (_) {
+      return 'valid';
+    }
   }
 }
 
