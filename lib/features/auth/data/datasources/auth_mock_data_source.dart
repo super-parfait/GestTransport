@@ -1,9 +1,32 @@
 import '../../../../core/network/api_exception.dart';
 import '../models/login_request.dart';
+import '../models/register_request.dart';
 import '../models/user_session.dart';
 
 class AuthMockDataSource {
   const AuthMockDataSource();
+
+  Future<UserSession> register(RegisterRequest request) async {
+    await Future<void>.delayed(const Duration(milliseconds: 700));
+
+    if (request.name.trim().isEmpty ||
+        request.phone.trim().isEmpty ||
+        request.password.trim().isEmpty) {
+      throw const ApiException('Informations d’inscription incomplètes.');
+    }
+
+    if (request.phone.trim() == '0700000000') {
+      throw const ApiException('Ce téléphone est déjà utilisé.');
+    }
+
+    return UserSession(
+      userId: 'demo-user-${request.phone.trim()}',
+      identifier: request.phone.trim(),
+      fullName: request.name.trim(),
+      accessToken: 'demo-access-token',
+      refreshToken: 'demo-refresh-token',
+    );
+  }
 
   Future<UserSession> login(LoginRequest request) async {
     await Future<void>.delayed(const Duration(milliseconds: 700));

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/theme/app_theme.dart';
 import '../core/constants/app_constants.dart';
+import '../core/widgets/primary_section_app_bar.dart';
 import 'loadings/presentation/loading_screen.dart';
 import 'factory_payments/presentation/factory_payment_screen.dart';
 import 'client_payments/presentation/client_payment_screen.dart';
@@ -63,15 +64,7 @@ class OperationsScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
-      appBar: AppBar(
-        title: Text(AppStrings.operations),
-        backgroundColor: AppColors.surface,
-        elevation: 0,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(height: 1, color: AppColors.divider),
-        ),
-      ),
+      appBar: const PrimarySectionAppBar(sectionTitle: 'Opérations'),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

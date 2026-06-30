@@ -724,12 +724,20 @@ class AppLoadingOverlay extends StatelessWidget {
   final bool isLoading;
   final Widget child;
   final String? message;
+  final TextStyle? messageStyle;
+  final Color overlayColor;
+  final Color panelColor;
+  final Color progressColor;
 
   const AppLoadingOverlay({
     super.key,
     required this.isLoading,
     required this.child,
     this.message,
+    this.messageStyle,
+    this.overlayColor = const Color(0x59000000),
+    this.panelColor = AppColors.surface,
+    this.progressColor = AppColors.primary,
   });
 
   @override
@@ -739,13 +747,13 @@ class AppLoadingOverlay extends StatelessWidget {
         child,
         if (isLoading)
           Container(
-            color: Colors.black.withOpacity(0.35),
+            color: overlayColor,
             child: Center(
               child: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: panelColor,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(color: AppColors.shadowMedium, blurRadius: 20)
@@ -754,10 +762,13 @@ class AppLoadingOverlay extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const CircularProgressIndicator(color: AppColors.primary),
+                    CircularProgressIndicator(color: progressColor),
                     if (message != null) ...[
                       const SizedBox(height: 16),
-                      Text(message!, style: AppTextStyles.bodyMedium),
+                      Text(
+                        message!,
+                        style: messageStyle ?? AppTextStyles.bodyMedium,
+                      ),
                     ],
                   ],
                 ),

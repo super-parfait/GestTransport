@@ -69,11 +69,16 @@ class AppStrings {
   static const String appTagline = 'Gestion Transport & Matériaux';
 
   // Auth
+  static const String register = 'Inscription';
   static const String login = 'Connexion';
   static const String logout = 'Déconnexion';
-  static const String phoneOrId = 'Téléphone ou Identifiant';
+  static const String fullName = 'Nom complet';
+  static const String phone = 'Téléphone';
+  static const String email = 'Email';
   static const String password = 'Mot de passe';
+  static const String confirmPassword = 'Confirmer le mot de passe';
   static const String connecting = 'Connexion en cours...';
+  static const String registering = 'Création du compte...';
   static const String loginError =
       'Identifiants incorrects. Veuillez réessayer.';
 

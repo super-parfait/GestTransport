@@ -47,7 +47,7 @@ class AppData {
           'status': 'active',
           'km': 125430,
           'alerts': ['assurance_expired'],
-          'assurance_expiry': '15/03/2024',
+          'assurance_expiry': '15/03/2026',
           'visite_expiry': '20/08/2025',
           'patente_expiry': '31/12/2025',
           'loadings': [

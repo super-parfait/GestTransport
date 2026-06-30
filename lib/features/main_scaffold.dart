@@ -61,6 +61,7 @@ class _MainScaffoldState extends State<MainScaffold> {
       DashboardScreen(
         controller: _dashboardController,
         dataSourceLabel: widget.container.dataSourceLabel,
+        onLogout: () => widget.container.sessionController.logout(),
       ),
       const OperationsScreen(),
       TrucksScreen(controller: _trucksController),
@@ -104,8 +105,10 @@ class _MainScaffoldState extends State<MainScaffold> {
                   const BorderRadius.vertical(top: Radius.circular(20)),
             ),
             child: SafeArea(
+              top: false,
               child: ResponsiveContent(
                 maxWidth: AppBreakpoints.contentMaxWidth(width),
+                shrinkWrapHeight: true,
                 child: Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: navPadding,

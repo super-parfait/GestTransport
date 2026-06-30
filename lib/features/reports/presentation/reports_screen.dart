@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_widgets.dart';
 import '../../../core/network/api_service.dart';
+import '../../../core/widgets/primary_section_app_bar.dart';
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
@@ -17,8 +18,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
-      appBar: AppBar(
-          title: const Text('Rapports'), backgroundColor: AppColors.surface),
+      appBar: const PrimarySectionAppBar(sectionTitle: 'Rapports'),
       body: Column(children: [
         // Onglets
         Container(

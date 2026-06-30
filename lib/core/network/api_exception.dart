@@ -42,6 +42,12 @@ class ApiException implements Exception {
           statusCode: statusCode,
           details: payload,
         );
+      case 409:
+        return ApiException(
+          message.isEmpty ? 'Cette ressource existe déjà.' : message,
+          statusCode: statusCode,
+          details: payload,
+        );
       case 422:
         return ApiException(
           message.isEmpty ? 'Données invalides.' : message,

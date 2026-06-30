@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../core/layout/app_breakpoints.dart';
-import '../../../core/layout/responsive_content.dart';
 import '../../../core/network/api_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_widgets.dart';
+import '../../../core/widgets/primary_section_app_bar.dart';
 import 'controllers/dashboard_controller.dart';
 import '../../charges/presentation/charges_screen.dart';
 import '../../client_payments/presentation/client_payment_screen.dart';
@@ -11,133 +11,162 @@ import '../../loadings/presentation/loading_screen.dart';
 import '../../revenues/presentation/revenue_screen.dart';
 import '../../trucks/presentation/oil_change_screen.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   final DashboardController controller;
   final String dataSourceLabel;
+  final VoidCallback? onLogout;
 
   const DashboardScreen({
     super.key,
     required this.controller,
     required this.dataSourceLabel,
+    this.onLogout,
   });
 
   @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_onControllerChange);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted &&
+          widget.controller.overview == null &&
+          !widget.controller.isLoading) {
+        widget.controller.load();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onControllerChange);
+    super.dispose();
+  }
+
+  void _onControllerChange() {
+    if (mounted) setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: controller,
-      builder: (context, _) {
-        final overview = controller.overview;
-        final data = overview?.toMap();
-        final alerts = data?['alerts'] as List? ?? const [];
+    final controller = widget.controller;
+    final overview = controller.overview;
+    final data = overview?.toMap();
+    final alerts = data?['alerts'] as List? ?? const [];
 
-        return Scaffold(
-          backgroundColor: AppColors.backgroundLight,
-          appBar: AppBar(
-            backgroundColor: AppColors.primary,
-            leading: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(Icons.local_shipping_rounded,
-                    color: Colors.white, size: 20),
-              ),
+    return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
+      appBar: PrimarySectionAppBar(
+        sectionTitle: 'Tableau de bord',
+        actions: [
+          IconButton(
+              icon:
+                  const Icon(Icons.notifications_rounded, color: Colors.white),
+              onPressed: () {}),
+          if (widget.onLogout != null)
+            IconButton(
+              icon: const Icon(Icons.logout_rounded, color: Colors.white),
+              tooltip: 'Déconnexion',
+              onPressed: widget.onLogout,
             ),
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('TranspoGest',
-                    style: AppTextStyles.headlineSmall
-                        .copyWith(color: Colors.white)),
-                Text('Tableau de bord',
-                    style: AppTextStyles.bodySmall
-                        .copyWith(color: Colors.white.withOpacity(0.7))),
-              ],
-            ),
-            actions: [
-              IconButton(
-                  icon: const Icon(Icons.notifications_rounded,
-                      color: Colors.white),
-                  onPressed: () {}),
-            ],
-          ),
-          body: Builder(
-            builder: (_) {
-              if (controller.isLoading && overview == null) {
-                return const Center(
-                  child: CircularProgressIndicator(color: AppColors.primary),
-                );
-              }
-
-              if (controller.errorMessage != null && overview == null) {
-                return AppEmptyState(
+        ],
+      ),
+      body: controller.isLoading && overview == null
+          ? const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            )
+          : controller.errorMessage != null && overview == null
+              ? AppEmptyState(
                   icon: Icons.cloud_off_rounded,
                   title: 'Chargement impossible',
                   subtitle: controller.errorMessage,
                   actionLabel: 'Réessayer',
                   onAction: controller.load,
-                );
-              }
+                )
+              : _buildContent(context, controller, data, alerts),
+    );
+  }
 
-              if (data == null) {
-                return AppEmptyState(
-                  icon: Icons.dashboard_outlined,
-                  title: 'Aucune donnée disponible',
-                  actionLabel: 'Actualiser',
-                  onAction: controller.load,
-                );
-              }
+  Widget _buildContent(
+    BuildContext context,
+    DashboardController controller,
+    Map<String, dynamic>? data,
+    List alerts,
+  ) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final pagePadding = AppBreakpoints.pagePadding(width);
 
-              return LayoutBuilder(
-                builder: (context, constraints) {
-                  final width = constraints.maxWidth;
-                  final pagePadding = AppBreakpoints.pagePadding(width);
-
-                  return RefreshIndicator(
-                    color: AppColors.primary,
-                    onRefresh: controller.load,
-                    child: ResponsiveContent(
-                      child: ListView(
-                        padding: EdgeInsets.all(pagePadding),
-                        children: [
-                          _buildDateBanner(width, dataSourceLabel),
-                          if (controller.errorMessage != null) ...[
-                            const SizedBox(height: 12),
-                            _buildSyncWarning(controller.errorMessage!),
-                          ],
-                          const SizedBox(height: 16),
-                          if (alerts.isNotEmpty) ...[
-                            _buildAlertsSection(alerts),
-                            const SizedBox(height: 16),
-                          ],
-                          Text(
-                            'Résumé du jour',
-                            style: AppTextStyles.headlineSmall,
-                          ),
-                          const SizedBox(height: 12),
-                          _buildMetricsGrid(data, width),
-                          const SizedBox(height: 20),
-                          Text(
-                            'Actions rapides',
-                            style: AppTextStyles.headlineSmall,
-                          ),
-                          const SizedBox(height: 12),
-                          _buildQuickActions(context),
-                          const SizedBox(height: 20),
-                          _buildFinanceSummary(data),
-                          const SizedBox(height: 80),
-                        ],
-                      ),
+        return RefreshIndicator(
+          color: AppColors.primary,
+          onRefresh: controller.load,
+          child: ListView(
+            padding: EdgeInsets.all(pagePadding),
+            children: [
+              _buildDateBanner(width, widget.dataSourceLabel),
+              if (controller.errorMessage != null) ...[
+                const SizedBox(height: 12),
+                _buildSyncWarning(controller.errorMessage!),
+              ],
+              const SizedBox(height: 16),
+              if (alerts.isNotEmpty) ...[
+                _buildAlertsSection(alerts),
+                const SizedBox(height: 16),
+              ],
+              Text('Résumé du jour', style: AppTextStyles.headlineSmall),
+              const SizedBox(height: 12),
+              data != null
+                  ? _buildMetricsGrid(data, width)
+                  : _buildNoDataPlaceholder(
+                      icon: Icons.bar_chart_rounded,
+                      message: 'Aucune activité enregistrée aujourd\'hui',
                     ),
-                  );
-                },
-              );
-            },
+              const SizedBox(height: 20),
+              Text('Actions rapides', style: AppTextStyles.headlineSmall),
+              const SizedBox(height: 12),
+              _buildQuickActions(context),
+              const SizedBox(height: 20),
+              data != null
+                  ? _buildFinanceSummary(data)
+                  : _buildFinanceSummaryEmpty(),
+              const SizedBox(height: 80),
+            ],
           ),
         );
       },
+    );
+  }
+
+  Widget _buildNoDataPlaceholder({
+    required IconData icon,
+    required String message,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(color: AppColors.shadow, blurRadius: 6),
+        ],
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: AppColors.textTertiary, size: 36),
+          const SizedBox(height: 10),
+          Text(
+            message,
+            style: AppTextStyles.bodyMedium
+                .copyWith(color: AppColors.textSecondary),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 
@@ -188,26 +217,22 @@ class DashboardScreen extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(
-                      Icons.calendar_today_rounded,
-                      color: AppColors.primary,
-                      size: 20,
-                    ),
+                    const Icon(Icons.calendar_today_rounded,
+                        color: AppColors.primary, size: 20),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: RichText(
-                        text: TextSpan(children: [
+                      child: Text.rich(
+                        TextSpan(children: [
                           TextSpan(
-                            text: '$dayName, ',
-                            style: AppTextStyles.titleMedium,
-                          ),
+                              text: '$dayName, ',
+                              style: AppTextStyles.titleMedium),
                           TextSpan(
-                            text: dateStr,
-                            style: AppTextStyles.titleMedium.copyWith(
-                              color: AppColors.primary,
-                            ),
-                          ),
+                              text: dateStr,
+                              style: AppTextStyles.titleMedium
+                                  .copyWith(color: AppColors.primary)),
                         ]),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -218,27 +243,24 @@ class DashboardScreen extends StatelessWidget {
             )
           : Row(
               children: [
-                const Icon(
-                  Icons.calendar_today_rounded,
-                  color: AppColors.primary,
-                  size: 20,
+                const Icon(Icons.calendar_today_rounded,
+                    color: AppColors.primary, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text.rich(
+                    TextSpan(children: [
+                      TextSpan(
+                          text: '$dayName, ', style: AppTextStyles.titleMedium),
+                      TextSpan(
+                          text: dateStr,
+                          style: AppTextStyles.titleMedium
+                              .copyWith(color: AppColors.primary)),
+                    ]),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 const SizedBox(width: 10),
-                RichText(
-                  text: TextSpan(children: [
-                    TextSpan(
-                      text: '$dayName, ',
-                      style: AppTextStyles.titleMedium,
-                    ),
-                    TextSpan(
-                      text: dateStr,
-                      style: AppTextStyles.titleMedium.copyWith(
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ]),
-                ),
-                const Spacer(),
                 _buildSourceBadge(sourceLabel),
               ],
             ),
@@ -306,10 +328,17 @@ class DashboardScreen extends StatelessWidget {
             const Icon(Icons.warning_amber_rounded,
                 color: AppColors.error, size: 20),
             const SizedBox(width: 8),
-            Text('Alertes importantes',
-                style:
-                    AppTextStyles.titleLarge.copyWith(color: AppColors.error)),
-            const Spacer(),
+            Expanded(
+              child: Text(
+                'Alertes importantes',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.titleLarge.copyWith(
+                  color: AppColors.error,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
@@ -383,7 +412,7 @@ class DashboardScreen extends StatelessWidget {
 
     final gridDelegate = AppBreakpoints.isCompact(width)
         ? SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 1,
+            crossAxisCount: 2,
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
             childAspectRatio: AppBreakpoints.dashboardMetricAspectRatio(width),
@@ -512,11 +541,8 @@ class DashboardScreen extends StatelessWidget {
                               color: action.color.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: Icon(
-                              action.icon,
-                              color: action.color,
-                              size: 22,
-                            ),
+                            child: Icon(action.icon,
+                                color: action.color, size: 22),
                           ),
                           const SizedBox(height: 6),
                           Text(
@@ -567,6 +593,38 @@ class DashboardScreen extends StatelessWidget {
             label: 'Solde net estimé',
             value: '250 000 F',
             valueColor: AppColors.primary,
+            isBold: true),
+      ],
+    );
+  }
+
+  Widget _buildFinanceSummaryEmpty() {
+    return AppSummaryCard(
+      title: '💰 Bilan financier du jour',
+      color: AppColors.primary,
+      rows: [
+        AppSummaryRow(
+            label: 'Recettes du jour',
+            value: '— F',
+            valueColor: AppColors.textSecondary,
+            isBold: true),
+        AppSummaryRow(
+            label: 'Dépenses du jour',
+            value: '— F',
+            valueColor: AppColors.textSecondary),
+        AppSummaryRow(
+            label: 'Versements usine',
+            value: '— F',
+            valueColor: AppColors.textSecondary),
+        AppSummaryRow(
+            label: 'Règlements reçus',
+            value: '— F',
+            valueColor: AppColors.textSecondary),
+        const AppSummaryRow(label: '─────────────────', value: ''),
+        AppSummaryRow(
+            label: 'Solde net estimé',
+            value: '— F',
+            valueColor: AppColors.textSecondary,
             isBold: true),
       ],
     );

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+
 import '../../../core/constants/app_constants.dart';
 import '../../../core/layout/app_breakpoints.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_widgets.dart';
 import 'controllers/session_controller.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   final SessionController sessionController;
@@ -20,40 +22,76 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-  final _identifierCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
+
+  late final AnimationController _animController;
+  late final Animation<double> _fadeAnim;
+  late final Animation<Offset> _slideAnim;
+
   bool _obscurePassword = true;
-  late AnimationController _animController;
-  late Animation<double> _fadeAnim;
-  late Animation<Offset> _slideAnim;
 
   @override
   void initState() {
     super.initState();
     _animController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 800));
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
     _fadeAnim = Tween<double>(begin: 0, end: 1).animate(
-        CurvedAnimation(parent: _animController, curve: Curves.easeOut));
-    _slideAnim = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero)
-        .animate(CurvedAnimation(
-            parent: _animController, curve: Curves.easeOutCubic));
+      CurvedAnimation(parent: _animController, curve: Curves.easeOut),
+    );
+    _slideAnim =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+      CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
+    );
     _animController.forward();
   }
 
   @override
   void dispose() {
     _animController.dispose();
-    _identifierCtrl.dispose();
+    _phoneCtrl.dispose();
     _passwordCtrl.dispose();
     super.dispose();
   }
 
   Future<void> _login() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
     await widget.sessionController.login(
-      identifier: _identifierCtrl.text,
+      identifier: _phoneCtrl.text,
       password: _passwordCtrl.text,
     );
+  }
+
+  Future<void> _openRegisterScreen() async {
+    widget.sessionController.clearError();
+
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) => RegisterScreen(
+          sessionController: widget.sessionController,
+        ),
+      ),
+    );
+  }
+
+  String? _validatePhone(String? value) {
+    final trimmed = value?.trim() ?? '';
+    final normalized = trimmed.replaceAll(RegExp(r'\s+'), '');
+
+    if (normalized.isEmpty) {
+      return 'Entrez votre numéro de téléphone';
+    }
+
+    if (normalized.length < 8) {
+      return 'Numéro de téléphone invalide';
+    }
+
+    return null;
   }
 
   @override
@@ -74,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen>
             final cardPadding = AppBreakpoints.isCompact(width) ? 22.0 : 28.0;
 
             return Scaffold(
-              backgroundColor: AppColors.primary,
+              backgroundColor: AppColors.backgroundLight,
               body: AppLoadingOverlay(
                 isLoading: isLoading,
                 message: AppStrings.connecting,
@@ -102,17 +140,18 @@ class _LoginScreenState extends State<LoginScreen>
                                       width: 80,
                                       height: 80,
                                       decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.15),
+                                        color: AppColors.primarySurface,
                                         borderRadius: BorderRadius.circular(24),
                                         border: Border.all(
-                                          color: Colors.white.withOpacity(0.3),
+                                          color: AppColors.primary
+                                              .withValues(alpha: 0.20),
                                           width: 2,
                                         ),
                                       ),
                                       child: const Icon(
                                         Icons.local_shipping_rounded,
                                         size: 44,
-                                        color: Colors.white,
+                                        color: AppColors.primary,
                                       ),
                                     ),
                                     const SizedBox(height: 16),
@@ -120,15 +159,13 @@ class _LoginScreenState extends State<LoginScreen>
                                       AppStrings.appName,
                                       textAlign: TextAlign.center,
                                       style: AppTextStyles.displayMedium
-                                          .copyWith(color: Colors.white),
+                                          .copyWith(color: AppColors.primary),
                                     ),
                                     const SizedBox(height: 6),
                                     Text(
                                       AppStrings.appTagline,
                                       textAlign: TextAlign.center,
-                                      style: AppTextStyles.bodyMedium.copyWith(
-                                        color: Colors.white.withOpacity(0.75),
-                                      ),
+                                      style: AppTextStyles.bodyMedium,
                                     ),
                                   ],
                                 ),
@@ -143,11 +180,11 @@ class _LoginScreenState extends State<LoginScreen>
                                   decoration: BoxDecoration(
                                     color: AppColors.surface,
                                     borderRadius: BorderRadius.circular(28),
-                                    boxShadow: [
+                                    boxShadow: const [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.2),
-                                        blurRadius: 30,
-                                        offset: const Offset(0, 10),
+                                        color: AppColors.shadowMedium,
+                                        blurRadius: 16,
+                                        offset: Offset(0, 4),
                                       ),
                                     ],
                                   ),
@@ -176,7 +213,7 @@ class _LoginScreenState extends State<LoginScreen>
                                                   BorderRadius.circular(12),
                                               border: Border.all(
                                                 color: AppColors.error
-                                                    .withOpacity(0.3),
+                                                    .withValues(alpha: 0.30),
                                               ),
                                             ),
                                             child: Row(
@@ -203,20 +240,17 @@ class _LoginScreenState extends State<LoginScreen>
                                           const SizedBox(height: 20),
                                         ],
                                         AppTextField(
-                                          label: AppStrings.phoneOrId,
-                                          hint: 'Ex: 07 XX XX XX XX',
-                                          controller: _identifierCtrl,
+                                          label: AppStrings.phone,
+                                          hint: 'Ex: 07 11 22 33 44',
+                                          controller: _phoneCtrl,
                                           keyboardType: TextInputType.phone,
                                           required: true,
                                           prefixIcon: const Icon(
-                                            Icons.person_outline_rounded,
+                                            Icons.phone_outlined,
                                             color: AppColors.textSecondary,
                                             size: 20,
                                           ),
-                                          validator: (v) =>
-                                              v == null || v.isEmpty
-                                                  ? 'Entrez votre identifiant'
-                                                  : null,
+                                          validator: _validatePhone,
                                         ),
                                         const SizedBox(height: 16),
                                         AppTextField(
@@ -244,10 +278,12 @@ class _LoginScreenState extends State<LoginScreen>
                                                   !_obscurePassword,
                                             ),
                                           ),
-                                          validator: (v) =>
-                                              v == null || v.isEmpty
-                                                  ? 'Entrez votre mot de passe'
-                                                  : null,
+                                          validator: (value) {
+                                            if ((value ?? '').trim().isEmpty) {
+                                              return 'Entrez votre mot de passe';
+                                            }
+                                            return null;
+                                          },
                                         ),
                                         const SizedBox(height: 28),
                                         AppButton(
@@ -255,6 +291,26 @@ class _LoginScreenState extends State<LoginScreen>
                                           isLoading: isLoading,
                                           icon: Icons.login_rounded,
                                           onPressed: _login,
+                                        ),
+                                        const SizedBox(height: 18),
+                                        Center(
+                                          child: Wrap(
+                                            crossAxisAlignment:
+                                                WrapCrossAlignment.center,
+                                            spacing: 4,
+                                            children: [
+                                              Text(
+                                                'Pas encore de compte ?',
+                                                style: AppTextStyles.bodyMedium,
+                                              ),
+                                              TextButton(
+                                                onPressed: _openRegisterScreen,
+                                                child: const Text(
+                                                  AppStrings.register,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -264,10 +320,10 @@ class _LoginScreenState extends State<LoginScreen>
                             ),
                             const SizedBox(height: 32),
                             Text(
-                              '© 2024 TranspoGest — v1.0.0',
+                              '© 2026 TranspoGest — v1.0.0',
                               textAlign: TextAlign.center,
                               style: AppTextStyles.bodySmall.copyWith(
-                                color: Colors.white.withOpacity(0.5),
+                                color: AppColors.textTertiary,
                               ),
                             ),
                           ],

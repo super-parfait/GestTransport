@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../../core/network/api_exception.dart';
 import '../../data/models/login_request.dart';
+import '../../data/models/register_request.dart';
 import '../../data/models/user_session.dart';
 import '../../domain/repositories/auth_repository.dart';
 
@@ -26,6 +27,15 @@ class SessionController extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   bool get isSubmitting => _isSubmitting;
   bool get isAuthenticated => _status == SessionStatus.authenticated;
+
+  void clearError() {
+    if (_errorMessage == null) {
+      return;
+    }
+
+    _errorMessage = null;
+    notifyListeners();
+  }
 
   Future<void> restoreSession() async {
     _status = SessionStatus.loading;
@@ -71,6 +81,43 @@ class SessionController extends ChangeNotifier {
       _session = null;
       _status = SessionStatus.unauthenticated;
       _errorMessage = 'Connexion impossible pour le moment.';
+      return false;
+    } finally {
+      _isSubmitting = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> register({
+    required String fullName,
+    required String phone,
+    required String email,
+    required String password,
+  }) async {
+    _isSubmitting = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      _session = await _authRepository.register(
+        RegisterRequest(
+          name: fullName.trim(),
+          phone: phone.trim(),
+          email: email.trim(),
+          password: password.trim(),
+        ),
+      );
+      _status = SessionStatus.authenticated;
+      return true;
+    } on ApiException catch (error) {
+      _session = null;
+      _status = SessionStatus.unauthenticated;
+      _errorMessage = error.message;
+      return false;
+    } catch (_) {
+      _session = null;
+      _status = SessionStatus.unauthenticated;
+      _errorMessage = 'Inscription impossible pour le moment.';
       return false;
     } finally {
       _isSubmitting = false;

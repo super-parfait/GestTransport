@@ -4,6 +4,7 @@ import '../../../core/layout/responsive_content.dart';
 import '../../../core/network/api_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_widgets.dart';
+import '../../../core/widgets/primary_section_app_bar.dart';
 import '../data/models/client_model.dart';
 import 'client_detail_screen.dart';
 import 'controllers/clients_controller.dart';
@@ -30,13 +31,12 @@ class _ClientsScreenState extends State<ClientsScreen> {
 
         return Scaffold(
           backgroundColor: AppColors.backgroundLight,
-          appBar: AppBar(
-            title: const Text('Clients'),
-            backgroundColor: AppColors.surface,
+          appBar: PrimarySectionAppBar(
+            sectionTitle: 'Clients',
             actions: [
               IconButton(
-                  icon: const Icon(Icons.person_add_rounded,
-                      color: AppColors.primary),
+                  icon:
+                      const Icon(Icons.person_add_rounded, color: Colors.white),
                   onPressed: () {}),
             ],
           ),

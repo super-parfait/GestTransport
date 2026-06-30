@@ -325,7 +325,7 @@ class _ClientLoadingScreenState extends State<ClientLoadingScreen> {
         const SizedBox(height: 14),
         AppTextField(
             label: 'Numéro de bon',
-            hint: 'BON-2024-001',
+            hint: 'BON-2026-001',
             controller: _bonCtrl,
             required: true,
             validator: (v) =>

@@ -4,6 +4,7 @@ import '../../../core/layout/responsive_content.dart';
 import '../../../core/network/api_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_widgets.dart';
+import '../../../core/widgets/primary_section_app_bar.dart';
 import '../data/models/truck_model.dart';
 import 'truck_detail_screen.dart';
 import 'controllers/trucks_controller.dart';
@@ -25,12 +26,11 @@ class TrucksScreen extends StatelessWidget {
 
         return Scaffold(
           backgroundColor: AppColors.backgroundLight,
-          appBar: AppBar(
-            title: const Text('Camions'),
-            backgroundColor: AppColors.surface,
+          appBar: PrimarySectionAppBar(
+            sectionTitle: 'Camions',
             actions: [
               IconButton(
-                  icon: const Icon(Icons.add_rounded, color: AppColors.primary),
+                  icon: const Icon(Icons.add_rounded, color: Colors.white),
                   onPressed: () {}),
             ],
           ),

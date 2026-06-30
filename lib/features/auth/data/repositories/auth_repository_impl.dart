@@ -3,6 +3,7 @@ import '../datasources/auth_local_data_source.dart';
 import '../datasources/auth_mock_data_source.dart';
 import '../datasources/auth_remote_data_source.dart';
 import '../models/login_request.dart';
+import '../models/register_request.dart';
 import '../models/user_session.dart';
 import '../../domain/repositories/auth_repository.dart';
 
@@ -23,11 +24,19 @@ class AuthRepositoryImpl implements AuthRepository {
         _localDataSource = localDataSource;
 
   @override
+  Future<UserSession> register(RegisterRequest request) async {
+    final session = _config.useMockApi
+        ? await _mockDataSource.register(request)
+        : await _remoteDataSource.register(request);
+    await _localDataSource.saveSession(session);
+    return session;
+  }
+
+  @override
   Future<UserSession> login(LoginRequest request) async {
-    final session = await _execute(
-      remoteCall: () => _remoteDataSource.login(request),
-      mockCall: () => _mockDataSource.login(request),
-    );
+    final session = _config.useMockApi
+        ? await _mockDataSource.login(request)
+        : await _remoteDataSource.login(request);
     await _localDataSource.saveSession(session);
     return session;
   }
@@ -40,23 +49,5 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<void> logout() {
     return _localDataSource.clearSession();
-  }
-
-  Future<UserSession> _execute({
-    required Future<UserSession> Function() remoteCall,
-    required Future<UserSession> Function() mockCall,
-  }) async {
-    if (_config.useMockApi) {
-      return mockCall();
-    }
-
-    try {
-      return await remoteCall();
-    } catch (_) {
-      if (_config.fallbackToMockOnError) {
-        return mockCall();
-      }
-      rethrow;
-    }
   }
 }
