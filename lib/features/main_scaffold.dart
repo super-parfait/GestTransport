@@ -63,6 +63,7 @@ class _MainScaffoldState extends State<MainScaffold> {
         dataSourceLabel: widget.container.dataSourceLabel,
         loadingsRepository: widget.container.loadingsRepository,
         clientsRepository: widget.container.clientsRepository,
+        driversRepository: widget.container.driversRepository,
         trucksRepository: widget.container.trucksRepository,
         factoryPaymentsRepository: widget.container.factoryPaymentsRepository,
         sitesRepository: widget.container.sitesRepository,
@@ -70,10 +71,14 @@ class _MainScaffoldState extends State<MainScaffold> {
         onLogout: () => widget.container.sessionController.logout(),
       ),
       OperationsScreen(container: widget.container),
-      TrucksScreen(controller: _trucksController),
+      TrucksScreen(
+        controller: _trucksController,
+        driversRepository: widget.container.driversRepository,
+      ),
       ClientsScreen(
         controller: _clientsController,
         clientsRepository: widget.container.clientsRepository,
+        driversRepository: widget.container.driversRepository,
         trucksRepository: widget.container.trucksRepository,
         sitesRepository: widget.container.sitesRepository,
         loadingsRepository: widget.container.loadingsRepository,

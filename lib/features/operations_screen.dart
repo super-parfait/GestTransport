@@ -7,6 +7,8 @@ import 'loadings/presentation/loading_screen.dart';
 import 'factory_payments/presentation/factory_payment_screen.dart';
 import 'client_payments/presentation/client_payment_screen.dart';
 import 'charges/presentation/charges_screen.dart';
+import 'drivers/presentation/controllers/drivers_controller.dart';
+import 'drivers/presentation/drivers_screen.dart';
 import 'revenues/presentation/revenue_screen.dart';
 import 'sites/presentation/sites_management_screen.dart';
 
@@ -54,6 +56,22 @@ class OperationsScreen extends StatelessWidget {
         ),
       ),
       _OpCard(
+        title: AppStrings.driverManagement,
+        description:
+            'Ajouter, modifier ou supprimer les chauffeurs de votre activité',
+        icon: Icons.badge_rounded,
+        color: AppColors.success,
+        badge: null,
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => DriversScreen(
+              controller: DriversController(container.driversRepository),
+            ),
+          ),
+        ),
+      ),
+      _OpCard(
         title: AppStrings.clientLoading,
         description: 'Nouveau chargement Sable, Gravier ou Transport',
         icon: Icons.inventory_2_rounded,
@@ -66,6 +84,7 @@ class OperationsScreen extends StatelessWidget {
             builder: (_) => ClientLoadingScreen(
               loadingsRepository: container.loadingsRepository,
               clientsRepository: container.clientsRepository,
+              driversRepository: container.driversRepository,
               trucksRepository: container.trucksRepository,
               sitesRepository: container.sitesRepository,
             ),

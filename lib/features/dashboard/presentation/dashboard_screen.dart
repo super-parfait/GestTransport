@@ -9,6 +9,9 @@ import '../../auth/data/models/user_session.dart';
 import '../../clients/domain/repositories/clients_repository.dart';
 import '../../factory_payments/domain/repositories/factory_payments_repository.dart';
 import '../../factory_payments/presentation/factory_payment_screen.dart';
+import '../../drivers/domain/repositories/drivers_repository.dart';
+import '../../drivers/presentation/controllers/drivers_controller.dart';
+import '../../drivers/presentation/drivers_screen.dart';
 import '../../loadings/domain/repositories/loadings_repository.dart';
 import '../../sites/domain/repositories/sites_repository.dart';
 import '../../sites/presentation/sites_management_screen.dart';
@@ -25,6 +28,7 @@ class DashboardScreen extends StatefulWidget {
   final String dataSourceLabel;
   final LoadingsRepository loadingsRepository;
   final ClientsRepository clientsRepository;
+  final DriversRepository driversRepository;
   final TrucksRepository trucksRepository;
   final FactoryPaymentsRepository factoryPaymentsRepository;
   final SitesRepository sitesRepository;
@@ -37,6 +41,7 @@ class DashboardScreen extends StatefulWidget {
     required this.dataSourceLabel,
     required this.loadingsRepository,
     required this.clientsRepository,
+    required this.driversRepository,
     required this.trucksRepository,
     required this.factoryPaymentsRepository,
     required this.sitesRepository,
@@ -636,6 +641,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   builder: (_) => ClientLoadingScreen(
                         loadingsRepository: widget.loadingsRepository,
                         clientsRepository: widget.clientsRepository,
+                        driversRepository: widget.driversRepository,
                         trucksRepository: widget.trucksRepository,
                         sitesRepository: widget.sitesRepository,
                       )))),
@@ -677,6 +683,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   builder: (_) => SitesManagementScreen(
                         repository: widget.sitesRepository,
                         session: widget.userSession,
+                      )))),
+      _Action(
+          'Chauffeurs',
+          Icons.badge_rounded,
+          AppColors.success,
+          () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => DriversScreen(
+                        controller: DriversController(
+                          widget.driversRepository,
+                        ),
                       )))),
     ];
 

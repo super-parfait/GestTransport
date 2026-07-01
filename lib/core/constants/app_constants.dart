@@ -108,6 +108,7 @@ class AppStrings {
   static const String operations = 'Opérations';
   static const String trucks = 'Camions';
   static const String clients = 'Clients';
+  static const String drivers = 'Chauffeurs';
   static const String reports = 'Rapports';
 
   // Dashboard
@@ -128,6 +129,7 @@ class AppStrings {
   static const String expenses = 'Charges / Dépenses';
   static const String revenue = 'Recettes';
   static const String sites = 'Sites & usines';
+  static const String driverManagement = 'Chauffeurs';
 
   // Common
   static const String save = 'Enregistrer';

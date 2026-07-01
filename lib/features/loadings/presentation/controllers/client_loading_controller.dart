@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../../clients/data/models/client_model.dart';
 import '../../../clients/domain/repositories/clients_repository.dart';
+import '../../../drivers/data/models/driver_model.dart';
+import '../../../drivers/domain/repositories/drivers_repository.dart';
 import '../../../sites/data/models/site_record.dart';
 import '../../../sites/domain/repositories/sites_repository.dart';
 import '../../../trucks/data/models/truck_model.dart';
@@ -15,13 +17,14 @@ import '../../domain/repositories/loadings_repository.dart';
 class ClientLoadingController extends ChangeNotifier {
   final LoadingsRepository _loadingsRepository;
   final ClientsRepository _clientsRepository;
+  final DriversRepository _driversRepository;
   final TrucksRepository _trucksRepository;
   final SitesRepository _sitesRepository;
 
   List<ClientModel> _clients = const [];
+  List<DriverModel> _driverRecords = const [];
   List<TruckModel> _trucks = const [];
   List<SiteRecord> _sites = const [];
-  List<LoadingDriverOption> _drivers = const [];
   List<LoadingRecord> _loadings = const [];
   bool _isLoadingReferences = false;
   bool _isLoadingLoadings = false;
@@ -34,10 +37,12 @@ class ClientLoadingController extends ChangeNotifier {
   ClientLoadingController({
     required LoadingsRepository loadingsRepository,
     required ClientsRepository clientsRepository,
+    required DriversRepository driversRepository,
     required TrucksRepository trucksRepository,
     required SitesRepository sitesRepository,
   })  : _loadingsRepository = loadingsRepository,
         _clientsRepository = clientsRepository,
+        _driversRepository = driversRepository,
         _trucksRepository = trucksRepository,
         _sitesRepository = sitesRepository;
 
@@ -45,8 +50,15 @@ class ClientLoadingController extends ChangeNotifier {
   List<ClientModel> get selectableClients =>
       _clients.where((client) => client.hasUsableId).toList(growable: false);
   List<TruckModel> get trucks => _trucks;
+  List<TruckModel> get availableTrucks => _trucks
+      .where((truck) => _isAvailableTruckStatus(truck.status))
+      .toList(growable: false);
   List<SiteRecord> get sites => _sites;
-  List<LoadingDriverOption> get drivers => _drivers;
+  List<LoadingDriverOption> get drivers =>
+      _buildDriverOptions(_driverRecords, _trucks);
+  List<LoadingDriverOption> get availableDrivers =>
+      drivers.where((driver) => driver.hasUsableId).toList(growable: false);
+
   List<LoadingRecord> get loadings => _loadings;
   bool get isLoadingReferences => _isLoadingReferences;
   bool get isLoadingLoadings => _isLoadingLoadings;
@@ -58,6 +70,8 @@ class ClientLoadingController extends ChangeNotifier {
       _submitErrorMessage ?? _referencesErrorMessage;
   String? get successMessage => _successMessage;
   bool get hasLegacyClients => _clients.any((client) => !client.hasUsableId);
+  bool get hasLegacyDrivers =>
+      _driverRecords.any((driver) => driver.isActive && !driver.hasUsableId);
 
   Future<void> loadInitialData() async {
     await Future.wait([
@@ -74,18 +88,19 @@ class ClientLoadingController extends ChangeNotifier {
     try {
       final results = await Future.wait<dynamic>([
         _clientsRepository.fetchClients(),
+        _driversRepository.fetchDrivers(),
         _trucksRepository.fetchTrucks(),
         _sitesRepository.fetchSites(),
       ]);
       _clients = results[0] as List<ClientModel>;
-      _trucks = results[1] as List<TruckModel>;
-      _sites = results[2] as List<SiteRecord>;
-      _drivers = _extractDrivers(_trucks);
+      _driverRecords = results[1] as List<DriverModel>;
+      _trucks = results[2] as List<TruckModel>;
+      _sites = results[3] as List<SiteRecord>;
     } on ApiException catch (error) {
       _referencesErrorMessage = error.message;
     } catch (_) {
       _referencesErrorMessage =
-          'Chargement des clients, camions et sites impossible.';
+          'Chargement des clients, chauffeurs, camions et sites impossible.';
     } finally {
       _isLoadingReferences = false;
       notifyListeners();
@@ -192,7 +207,7 @@ class ClientLoadingController extends ChangeNotifier {
   }
 
   LoadingDriverOption? driverById(String driverId) {
-    for (final driver in _drivers) {
+    for (final driver in availableDrivers) {
       if (driver.id == driverId) {
         return driver;
       }
@@ -201,12 +216,12 @@ class ClientLoadingController extends ChangeNotifier {
   }
 
   LoadingDriverOption? driverForTruck(String truckId) {
-    for (final driver in _drivers) {
-      if (driver.truckId == truckId) {
-        return driver;
-      }
+    final truck = truckById(truckId);
+    if (truck == null || truck.driverId.trim().isEmpty) {
+      return null;
     }
-    return null;
+
+    return driverById(truck.driverId.trim());
   }
 
   bool isSelectableClientId(String? clientId) {
@@ -222,43 +237,41 @@ class ClientLoadingController extends ChangeNotifier {
     if (normalized.isEmpty) {
       return false;
     }
-    return _drivers.any((driver) => driver.id == normalized);
+    return availableDrivers.any((driver) => driver.id == normalized);
   }
 
-  List<LoadingDriverOption> _extractDrivers(List<TruckModel> trucks) {
-    final seen = <String>{};
-    final drivers = <LoadingDriverOption>[];
+  List<LoadingDriverOption> _buildDriverOptions(
+    List<DriverModel> driverRecords,
+    List<TruckModel> trucks,
+  ) {
+    final truckByDriverId = <String, TruckModel>{};
 
     for (final truck in trucks) {
-      final driverName = truck.driver.trim();
-      if (driverName.isEmpty) {
-        continue;
-      }
-
       final driverId = truck.driverId.trim();
       if (driverId.isEmpty) {
         continue;
       }
-      if (seen.contains(driverId)) {
-        continue;
-      }
-
-      final candidate = LoadingDriverOption(
-        id: driverId,
-        name: driverName,
-        phone: truck.phone,
-        truckId: truck.id,
-        truckRegistration: truck.plate,
-      );
-      if (!candidate.hasUsableId) {
-        continue;
-      }
-
-      seen.add(driverId);
-      drivers.add(candidate);
+      truckByDriverId[driverId] = truck;
     }
 
-    return drivers;
+    final options =
+        driverRecords.where((driver) => driver.isActive).map((driver) {
+      final assignedTruck = truckByDriverId[driver.id];
+      return LoadingDriverOption(
+        id: driver.id,
+        name: driver.name,
+        phone: driver.phone,
+        truckId: assignedTruck?.id ?? '',
+        truckRegistration: assignedTruck?.plate ?? '',
+      );
+    }).toList(growable: false);
+
+    options.sort(
+      (left, right) =>
+          left.name.toLowerCase().compareTo(right.name.toLowerCase()),
+    );
+
+    return options;
   }
 
   List<LoadingRecord> _sortLoadings(List<LoadingRecord> items) {
@@ -271,5 +284,10 @@ class ClientLoadingController extends ChangeNotifier {
       return b.createdAt.compareTo(a.createdAt);
     });
     return sorted;
+  }
+
+  bool _isAvailableTruckStatus(String status) {
+    final normalized = status.trim().toUpperCase();
+    return normalized == 'DISPONIBLE' || normalized == 'AVAILABLE';
   }
 }

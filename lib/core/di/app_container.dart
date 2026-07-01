@@ -15,6 +15,10 @@ import '../../features/dashboard/data/datasources/dashboard_mock_data_source.dar
 import '../../features/dashboard/data/datasources/dashboard_remote_data_source.dart';
 import '../../features/dashboard/data/repositories/dashboard_repository_impl.dart';
 import '../../features/dashboard/domain/repositories/dashboard_repository.dart';
+import '../../features/drivers/data/datasources/drivers_mock_data_source.dart';
+import '../../features/drivers/data/datasources/drivers_remote_data_source.dart';
+import '../../features/drivers/data/repositories/drivers_repository_impl.dart';
+import '../../features/drivers/domain/repositories/drivers_repository.dart';
 import '../../features/factory_payments/data/datasources/factory_payments_mock_data_source.dart';
 import '../../features/factory_payments/data/datasources/factory_payments_remote_data_source.dart';
 import '../../features/factory_payments/data/repositories/factory_payments_repository_impl.dart';
@@ -43,6 +47,7 @@ class AppContainer {
   final AuthRepository authRepository;
   final DashboardRepository dashboardRepository;
   final ClientsRepository clientsRepository;
+  final DriversRepository driversRepository;
   final TrucksRepository trucksRepository;
   final LoadingsRepository loadingsRepository;
   final FactoryPaymentsRepository factoryPaymentsRepository;
@@ -57,6 +62,7 @@ class AppContainer {
     required this.authRepository,
     required this.dashboardRepository,
     required this.clientsRepository,
+    required this.driversRepository,
     required this.trucksRepository,
     required this.loadingsRepository,
     required this.factoryPaymentsRepository,
@@ -97,6 +103,12 @@ class AppContainer {
       mockDataSource: const ClientsMockDataSource(),
     );
 
+    final driversRepository = DriversRepositoryImpl(
+      config: resolvedConfig,
+      remoteDataSource: DriversRemoteDataSource(apiClient),
+      mockDataSource: const DriversMockDataSource(),
+    );
+
     final trucksRepository = TrucksRepositoryImpl(
       config: resolvedConfig,
       remoteDataSource: TrucksRemoteDataSource(apiClient),
@@ -129,6 +141,7 @@ class AppContainer {
       authRepository: authRepository,
       dashboardRepository: dashboardRepository,
       clientsRepository: clientsRepository,
+      driversRepository: driversRepository,
       trucksRepository: trucksRepository,
       loadingsRepository: loadingsRepository,
       factoryPaymentsRepository: factoryPaymentsRepository,

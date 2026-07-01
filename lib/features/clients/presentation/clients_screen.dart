@@ -6,6 +6,7 @@ import '../../../core/network/api_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_widgets.dart';
 import '../../../core/widgets/primary_section_app_bar.dart';
+import '../../drivers/domain/repositories/drivers_repository.dart';
 import '../../loadings/domain/repositories/loadings_repository.dart';
 import '../../sites/domain/repositories/sites_repository.dart';
 import '../../trucks/domain/repositories/trucks_repository.dart';
@@ -18,6 +19,7 @@ import 'controllers/clients_controller.dart';
 class ClientsScreen extends StatefulWidget {
   final ClientsController controller;
   final ClientsRepository clientsRepository;
+  final DriversRepository driversRepository;
   final TrucksRepository trucksRepository;
   final SitesRepository sitesRepository;
   final LoadingsRepository loadingsRepository;
@@ -26,6 +28,7 @@ class ClientsScreen extends StatefulWidget {
     super.key,
     required this.controller,
     required this.clientsRepository,
+    required this.driversRepository,
     required this.trucksRepository,
     required this.sitesRepository,
     required this.loadingsRepository,
@@ -152,6 +155,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
               ],
             ),
             floatingActionButton: FloatingActionButton.extended(
+              heroTag: 'clients_fab',
               onPressed: () => _openEditor(),
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
@@ -329,6 +333,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
                                 itemBuilder: (_, index) => _ClientCard(
                                   client: clients[index],
                                   clientsRepository: widget.clientsRepository,
+                                  driversRepository: widget.driversRepository,
                                   trucksRepository: widget.trucksRepository,
                                   sitesRepository: widget.sitesRepository,
                                   loadingsRepository: widget.loadingsRepository,
@@ -381,6 +386,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
 class _ClientCard extends StatelessWidget {
   final ClientModel client;
   final ClientsRepository clientsRepository;
+  final DriversRepository driversRepository;
   final TrucksRepository trucksRepository;
   final SitesRepository sitesRepository;
   final LoadingsRepository loadingsRepository;
@@ -390,6 +396,7 @@ class _ClientCard extends StatelessWidget {
   const _ClientCard({
     required this.client,
     required this.clientsRepository,
+    required this.driversRepository,
     required this.trucksRepository,
     required this.sitesRepository,
     required this.loadingsRepository,
@@ -419,6 +426,7 @@ class _ClientCard extends StatelessWidget {
           builder: (_) => ClientDetailScreen(
             client: client.toPresentationMap(),
             clientsRepository: clientsRepository,
+            driversRepository: driversRepository,
             trucksRepository: trucksRepository,
             sitesRepository: sitesRepository,
             loadingsRepository: loadingsRepository,
@@ -757,127 +765,130 @@ class _ClientEditorSheetState extends State<_ClientEditorSheet> {
           padding: EdgeInsets.only(bottom: viewInsets.bottom),
           child: Form(
             key: _formKey,
-            child: ListView(
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-              children: [
-                Center(
-                  child: Container(
-                    width: 46,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: AppColors.divider,
-                      borderRadius: BorderRadius.circular(999),
+            child: SafeArea(
+              child: ListView(
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                children: [
+                  Center(
+                    child: Container(
+                      width: 46,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: AppColors.divider,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  isEditing ? 'Modifier le client' : 'Ajouter un client',
-                  style: AppTextStyles.headlineLarge,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Créez un client réel pour l’utiliser dans les chargements et le suivi des paiements.',
-                  style: AppTextStyles.bodyMedium,
-                ),
-                const SizedBox(height: 20),
-                AppSectionCard(
-                  title: 'Informations générales',
-                  icon: Icons.person_outline_rounded,
-                  iconColor: AppColors.primary,
-                  children: [
-                    AppTextField(
-                      label: 'Nom du client',
-                      hint: 'Ex: KOUAME Eric',
-                      controller: _nameCtrl,
-                      required: true,
-                      validator: (value) {
-                        if ((value ?? '').trim().isEmpty) {
-                          return 'Entrez le nom du client';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 14),
-                    AppTextField(
-                      label: 'Téléphone',
-                      hint: 'Ex: 0700112233',
-                      controller: _phoneCtrl,
-                      keyboardType: TextInputType.phone,
-                    ),
-                    const SizedBox(height: 14),
-                    AppTextField(
-                      label: 'Adresse',
-                      hint: 'Quartier, ville...',
-                      controller: _addressCtrl,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                AppSectionCard(
-                  title: 'Statut & notes',
-                  icon: Icons.assignment_rounded,
-                  iconColor: AppColors.success,
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.surfaceVariant,
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: SwitchListTile.adaptive(
-                        value: _isActive,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                        ),
-                        activeColor: AppColors.primary,
-                        title: Text(
-                          'Client actif',
-                          style: AppTextStyles.titleMedium,
-                        ),
-                        subtitle: Text(
-                          _isActive
-                              ? 'Ce client peut être utilisé dans les opérations.'
-                              : 'Le client reste visible mais peut être marqué comme inactif.',
-                          style: AppTextStyles.bodySmall,
-                        ),
-                        onChanged: (value) {
-                          setState(() => _isActive = value);
+                  const SizedBox(height: 16),
+                  Text(
+                    isEditing ? 'Modifier le client' : 'Ajouter un client',
+                    style: AppTextStyles.headlineLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Créez un client réel pour l’utiliser dans les chargements et le suivi des paiements.',
+                    style: AppTextStyles.bodyMedium,
+                  ),
+                  const SizedBox(height: 20),
+                  AppSectionCard(
+                    title: 'Informations générales',
+                    icon: Icons.person_outline_rounded,
+                    iconColor: AppColors.primary,
+                    children: [
+                      AppTextField(
+                        label: 'Nom du client',
+                        hint: 'Ex: KOUAME Eric',
+                        controller: _nameCtrl,
+                        required: true,
+                        validator: (value) {
+                          if ((value ?? '').trim().isEmpty) {
+                            return 'Entrez le nom du client';
+                          }
+                          return null;
                         },
                       ),
-                    ),
-                    const SizedBox(height: 14),
-                    AppTextField(
-                      label: 'Notes',
-                      hint: 'Observations utiles',
-                      controller: _notesCtrl,
-                      maxLines: 3,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(
-                      child: AppButton(
-                        label: 'Annuler',
-                        variant: AppButtonVariant.ghost,
-                        onPressed: () => Navigator.of(context).pop(),
+                      const SizedBox(height: 14),
+                      AppTextField(
+                        label: 'Téléphone',
+                        hint: 'Ex: 0700112233',
+                        controller: _phoneCtrl,
+                        keyboardType: TextInputType.phone,
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: AppButton(
-                        label: isEditing ? 'Mettre à jour' : 'Enregistrer',
-                        icon: isEditing
-                            ? Icons.edit_rounded
-                            : Icons.person_add_alt_1_rounded,
-                        onPressed: _submit,
+                      const SizedBox(height: 14),
+                      AppTextField(
+                        label: 'Adresse',
+                        hint: 'Quartier, ville...',
+                        controller: _addressCtrl,
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  AppSectionCard(
+                    title: 'Statut & notes',
+                    icon: Icons.assignment_rounded,
+                    iconColor: AppColors.success,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceVariant,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: SwitchListTile.adaptive(
+                          value: _isActive,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                          ),
+                          activeColor: AppColors.primary,
+                          title: Text(
+                            'Client actif',
+                            style: AppTextStyles.titleMedium,
+                          ),
+                          subtitle: Text(
+                            _isActive
+                                ? 'Ce client peut être utilisé dans les opérations.'
+                                : 'Le client reste visible mais peut être marqué comme inactif.',
+                            style: AppTextStyles.bodySmall,
+                          ),
+                          onChanged: (value) {
+                            setState(() => _isActive = value);
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      AppTextField(
+                        label: 'Notes',
+                        hint: 'Observations utiles',
+                        controller: _notesCtrl,
+                        maxLines: 3,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: AppButton(
+                          label: 'Annuler',
+                          variant: AppButtonVariant.ghost,
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: AppButton(
+                          label: isEditing ? 'Mettre à jour' : 'Enregistrer',
+                          icon: isEditing
+                              ? Icons.edit_rounded
+                              : Icons.person_add_alt_1_rounded,
+                          onPressed: _submit,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

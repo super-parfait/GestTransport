@@ -522,5 +522,11 @@ class AppData {
     'available': 'Disponible',
     'maintenance': 'En entretien',
     'breakdown': 'En panne',
+    'ACTIF': 'En service',
+    'DISPONIBLE': 'Disponible',
+    'EN_VOYAGE': 'En route',
+    'EN_ENTRETIEN': 'En entretien',
+    'EN_PANNE': 'En panne',
+    'HORS_SERVICE': 'Hors service',
   };
 }

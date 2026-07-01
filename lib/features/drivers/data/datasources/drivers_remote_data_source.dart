@@ -1,45 +1,48 @@
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_endpoints.dart';
-import '../models/truck_model.dart';
-import '../models/truck_upsert_request.dart';
+import '../models/driver_model.dart';
+import '../models/driver_upsert_request.dart';
 
-class TrucksRemoteDataSource {
+class DriversRemoteDataSource {
   final ApiClient _apiClient;
 
-  const TrucksRemoteDataSource(this._apiClient);
+  const DriversRemoteDataSource(this._apiClient);
 
-  Future<List<TruckModel>> fetchTrucks() {
+  Future<List<DriverModel>> fetchDrivers() {
     return _apiClient.get(
-      ApiEndpoints.trucks,
+      ApiEndpoints.drivers,
       queryParameters: const {
         'limit': 100,
       },
       decoder: (data) {
         final list = _extractList(data);
-        return list.map(TruckModel.fromJson).toList();
+        return list.map(DriverModel.fromJson).toList();
       },
     );
   }
 
-  Future<TruckModel> createTruck(TruckUpsertRequest request) {
+  Future<DriverModel> createDriver(DriverUpsertRequest request) {
     return _apiClient.post(
-      ApiEndpoints.trucks,
+      ApiEndpoints.drivers,
       body: request.toJson(),
-      decoder: (data) => TruckModel.fromJson(data as Map<String, dynamic>),
+      decoder: (data) => DriverModel.fromJson(data as Map<String, dynamic>),
     );
   }
 
-  Future<TruckModel> updateTruck(String truckId, TruckUpsertRequest request) {
+  Future<DriverModel> updateDriver(
+    String driverId,
+    DriverUpsertRequest request,
+  ) {
     return _apiClient.patch(
-      '${ApiEndpoints.trucks}/$truckId',
+      '${ApiEndpoints.drivers}/$driverId',
       body: request.toJson(),
-      decoder: (data) => TruckModel.fromJson(data as Map<String, dynamic>),
+      decoder: (data) => DriverModel.fromJson(data as Map<String, dynamic>),
     );
   }
 
-  Future<void> deleteTruck(String truckId) async {
+  Future<void> deleteDriver(String driverId) async {
     await _apiClient.delete<bool>(
-      '${ApiEndpoints.trucks}/$truckId',
+      '${ApiEndpoints.drivers}/$driverId',
       decoder: (_) => true,
     );
   }

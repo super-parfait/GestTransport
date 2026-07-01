@@ -5,6 +5,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_widgets.dart';
 import '../../clients/domain/repositories/clients_repository.dart';
+import '../../drivers/domain/repositories/drivers_repository.dart';
 import '../../sites/data/models/site_record.dart';
 import '../../sites/domain/repositories/sites_repository.dart';
 import '../../trucks/data/models/truck_model.dart';
@@ -18,6 +19,7 @@ import 'controllers/client_loading_controller.dart';
 class ClientLoadingScreen extends StatefulWidget {
   final LoadingsRepository loadingsRepository;
   final ClientsRepository clientsRepository;
+  final DriversRepository driversRepository;
   final TrucksRepository trucksRepository;
   final SitesRepository sitesRepository;
   final String? prefilledClientId;
@@ -27,6 +29,7 @@ class ClientLoadingScreen extends StatefulWidget {
     super.key,
     required this.loadingsRepository,
     required this.clientsRepository,
+    required this.driversRepository,
     required this.trucksRepository,
     required this.sitesRepository,
     this.prefilledClientId,
@@ -72,6 +75,7 @@ class _ClientLoadingScreenState extends State<ClientLoadingScreen> {
     _controller = ClientLoadingController(
       loadingsRepository: widget.loadingsRepository,
       clientsRepository: widget.clientsRepository,
+      driversRepository: widget.driversRepository,
       trucksRepository: widget.trucksRepository,
       sitesRepository: widget.sitesRepository,
     )..loadInitialData();
@@ -504,7 +508,7 @@ class _ClientLoadingScreenState extends State<ClientLoadingScreen> {
       animation: _controller,
       builder: (context, _) {
         final hasClients = _controller.selectableClients.isNotEmpty;
-        final hasTrucks = _controller.trucks.isNotEmpty;
+        final hasTrucks = _controller.availableTrucks.isNotEmpty;
         final hasSites = _controller.sites.isNotEmpty;
         final canSubmit = !_controller.isSubmitting &&
             !_controller.isLoadingReferences &&
@@ -657,8 +661,10 @@ class _ClientLoadingScreenState extends State<ClientLoadingScreen> {
     final errorMessage = _controller.formErrorMessage;
     final referencesLoaded = !_controller.isLoadingReferences;
     final availableClients = _controller.selectableClients;
+    final availableTrucks = _controller.availableTrucks;
+    final availableDrivers = _controller.availableDrivers;
     final hasClients = availableClients.isNotEmpty;
-    final hasTrucks = _controller.trucks.isNotEmpty;
+    final hasTrucks = availableTrucks.isNotEmpty;
     final hasSites = _controller.sites.isNotEmpty;
     final hasLockedPrefilledClient = widget.lockPrefilledClient &&
         widget.prefilledClientId != null &&
@@ -674,12 +680,12 @@ class _ClientLoadingScreenState extends State<ClientLoadingScreen> {
     )
         ? _selectedSiteId
         : null;
-    final truckDropdownValue = _controller.trucks.any(
+    final truckDropdownValue = availableTrucks.any(
       (truck) => truck.id == _selectedTruckId,
     )
         ? _selectedTruckId
         : null;
-    final driverDropdownValue = _controller.drivers.any(
+    final driverDropdownValue = availableDrivers.any(
       (driver) => driver.id == _selectedDriverId,
     )
         ? _selectedDriverId
@@ -720,6 +726,36 @@ class _ClientLoadingScreenState extends State<ClientLoadingScreen> {
                   Expanded(
                     child: Text(
                       'Seuls les clients créés avec un identifiant UUID peuvent être utilisés pour ce formulaire. Les anciens clients restent visibles dans l’écran Clients mais sont exclus ici.',
+                      style: AppTextStyles.bodyMedium,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+          if (_controller.hasLegacyDrivers) ...[
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: AppColors.warning.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: AppColors.warning.withValues(alpha: 0.20),
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(
+                    Icons.info_outline_rounded,
+                    color: AppColors.warning,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Seuls les chauffeurs actifs avec un identifiant UUID peuvent etre utilises pour ce formulaire. Les anciens chauffeurs restent gerables dans l’ecran Chauffeurs mais sont exclus ici.',
                       style: AppTextStyles.bodyMedium,
                     ),
                   ),
@@ -824,10 +860,11 @@ class _ClientLoadingScreenState extends State<ClientLoadingScreen> {
                   label: 'Camion',
                   required: true,
                   value: truckDropdownValue,
-                  hint:
-                      hasTrucks ? 'Sélectionner un camion...' : 'Aucun camion',
+                  hint: hasTrucks
+                      ? 'Sélectionner un camion disponible...'
+                      : 'Aucun camion disponible',
                   enabled: !_controller.isLoadingReferences && hasTrucks,
-                  items: _controller.trucks
+                  items: availableTrucks
                       .map(
                         (truck) => DropdownMenuItem<String>(
                           value: truck.id,
@@ -851,14 +888,14 @@ class _ClientLoadingScreenState extends State<ClientLoadingScreen> {
                 ],
                 const SizedBox(height: 14),
                 AppDropdown<String>(
-                  label: 'Chauffeur assigné',
+                  label: 'Chauffeur',
                   value: driverDropdownValue,
-                  hint: _controller.drivers.isNotEmpty
+                  hint: availableDrivers.isNotEmpty
                       ? 'Sélectionner un chauffeur...'
-                      : 'Aucun chauffeur assigné',
+                      : 'Aucun chauffeur disponible',
                   enabled: !_controller.isLoadingReferences &&
-                      _controller.drivers.isNotEmpty,
-                  items: _controller.drivers
+                      availableDrivers.isNotEmpty,
+                  items: availableDrivers
                       .map(
                         (driver) => DropdownMenuItem<String>(
                           value: driver.id,
@@ -925,7 +962,7 @@ class _ClientLoadingScreenState extends State<ClientLoadingScreen> {
                     ),
                     child: Text(
                       hasClients
-                          ? 'Le formulaire demande au moins un client, un camion et, pour sable/gravier, un site affecté à votre compte.'
+                          ? 'Le formulaire demande au moins un client, un camion disponible et, pour sable/gravier, un site affecté à votre compte.'
                           : 'Créez d’abord un client réel dans l’écran Clients, puis revenez ici pour enregistrer le chargement.',
                       style: AppTextStyles.bodyMedium,
                     ),

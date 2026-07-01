@@ -1,11 +1,14 @@
 class TruckModel {
   final String id;
   final String plate;
+  final String brand;
+  final String model;
   final String driverId;
   final String driver;
   final String phone;
   final String status;
   final int km;
+  final String notes;
   final List<String> alerts;
   final String assuranceExpiry;
   final String visiteExpiry;
@@ -15,15 +18,20 @@ class TruckModel {
   final List<Map<String, dynamic>> maintenances;
   final List<Map<String, dynamic>> oilChanges;
   final List<Map<String, dynamic>> revenues;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
   const TruckModel({
     required this.id,
     required this.plate,
+    required this.brand,
+    required this.model,
     required this.driverId,
     required this.driver,
     required this.phone,
     required this.status,
     required this.km,
+    required this.notes,
     required this.alerts,
     required this.assuranceExpiry,
     required this.visiteExpiry,
@@ -33,6 +41,8 @@ class TruckModel {
     required this.maintenances,
     required this.oilChanges,
     required this.revenues,
+    required this.createdAt,
+    required this.updatedAt,
   });
 
   factory TruckModel.fromJson(Map<String, dynamic> json) {
@@ -41,12 +51,15 @@ class TruckModel {
     return TruckModel(
       id: (json['id'] ?? '').toString(),
       plate: (json['plate'] ?? json['registration'] ?? '').toString(),
+      brand: (json['brand'] ?? '').toString(),
+      model: (json['model'] ?? '').toString(),
       driverId: (json['driverId'] ?? driver['id'] ?? '').toString(),
       driver: (json['driver'] is String ? json['driver'] : driver['name'] ?? '')
           .toString(),
       phone: (json['phone'] ?? driver['phone'] ?? '').toString(),
       status: (json['status'] ?? 'DISPONIBLE').toString(),
       km: _asInt(json['km'] ?? json['currentKm']),
+      notes: (json['notes'] ?? '').toString(),
       alerts: _parseStringList(json['alerts']),
       assuranceExpiry: (json['assurance_expiry'] ?? '').toString(),
       visiteExpiry: (json['visite_expiry'] ?? '').toString(),
@@ -56,6 +69,10 @@ class TruckModel {
       maintenances: _parseMapList(json['maintenances']),
       oilChanges: _parseMapList(json['oil_changes'] ?? json['oilChanges']),
       revenues: _parseMapList(json['revenues']),
+      createdAt: _asDateTime(json['createdAt'] ?? json['created_at']),
+      updatedAt: _asDateTime(
+        json['updatedAt'] ?? json['updated_at'] ?? json['createdAt'],
+      ),
     );
   }
 
@@ -65,11 +82,14 @@ class TruckModel {
     return {
       'id': id,
       'plate': plate,
+      'brand': brand,
+      'model': model,
       'driver_id': driverId,
       'driver': driver,
       'phone': phone,
       'status': status,
       'km': km,
+      'notes': notes,
       'alerts': alerts,
       'assurance_expiry': assuranceExpiry,
       'visite_expiry': visiteExpiry,
@@ -109,6 +129,11 @@ class TruckModel {
         .whereType<Map>()
         .map((item) => Map<String, dynamic>.from(item))
         .toList();
+  }
+
+  static DateTime _asDateTime(dynamic value) {
+    final parsed = DateTime.tryParse(value?.toString() ?? '');
+    return parsed ?? DateTime.fromMillisecondsSinceEpoch(0);
   }
 
   static Map<String, dynamic> _asMap(dynamic value) {

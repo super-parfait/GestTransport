@@ -140,6 +140,7 @@ class _SitesManagementScreenState extends State<SitesManagementScreen> {
             ),
             floatingActionButton: _canManageSites
                 ? FloatingActionButton.extended(
+                    heroTag: 'sites_fab',
                     onPressed: () => _openEditor(),
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,

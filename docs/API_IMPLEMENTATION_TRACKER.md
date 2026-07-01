@@ -25,6 +25,7 @@ Ce fichier sert de reference pour suivre les fonctionnalites deja branchees, cel
 - Persistance du token/session via `TokenStorage`.
 - Injection des dependances via `AppContainer`.
 - Architecture repository + data sources pour `auth`, `dashboard`, `clients` et `trucks`.
+- Architecture repository + data sources branchee aussi pour `drivers`.
 - Base de responsivite mobile via `AppBreakpoints` et `ResponsiveContent`.
 - Police globale `Ubuntu` appliquee au theme.
 
@@ -38,10 +39,11 @@ Ce fichier sert de reference pour suivre les fonctionnalites deja branchees, cel
 | Recuperation du profil courant | Termine | `GET /auth/me` est consomme pendant la restauration de session pour charger le profil actuel du user connecte. |
 | Tableau de bord accueil | Termine | Dashboard mobile branche sur `GET /dashboard/overview` avec cartes de synthese, alertes, profil connecte, bilan financier calcule et actions rapides. |
 | Liste des clients | Termine | Lecture et CRUD mobile branches sur `GET /clients`, `POST /clients`, `PATCH /clients/:id` et `DELETE /clients/:id`, avec signalement des anciens IDs non compatibles pour les chargements. |
+| Gestion des chauffeurs | Termine | Ecran mobile CRUD branche sur `GET /drivers`, `POST /drivers`, `PATCH /drivers/:id` et `DELETE /drivers/:id`, accessible depuis les operations et les actions rapides du dashboard. |
 | Details client / releve client | A faire | Le backend expose `GET /clients/:id` et `GET /reports/clients/:clientId`, mais ce flux n'est pas encore branche proprement dans l'app. |
-| Liste des camions | Partiel | Le datasource distant appelle `GET /trucks`, mais le modele Flutter attend encore `plate`, `driver`, `km`, `alerts`, documents et historiques non alignes sur le DTO backend actuel. |
-| Details camion / releve camion | A faire | Le backend expose `GET /trucks/:id` et `GET /reports/trucks/:truckId`, integration Flutter non faite. |
-| Chargements | Termine | Historique et creation branches sur `GET /loadings`, `POST /loadings` avec references reelles `clients`, `camions`, `sites`, upload de justificatif, filtrage des clients UUID utilisables et neutralisation des `driverId` non conformes. |
+| Liste des camions | Termine | Lecture et CRUD mobile branches sur `GET /trucks`, `POST /trucks`, `PATCH /trucks/:id` et `DELETE /trucks/:id`, avec alignement des champs `registration`, `brand`, `model`, `status`, `currentKm`, `notes` et l’affectation `driverId` sur chauffeurs UUID. |
+| Details camion / releve camion | Partiel | L'ecran detail existe et consomme le modele reel de base, mais les historiques, documents et releves dedies via `GET /trucks/:id` et `GET /reports/trucks/:truckId` restent a brancher proprement. |
+| Chargements | Termine | Historique et creation branches sur `GET /loadings`, `POST /loadings` avec references reelles `clients`, `chauffeurs`, `camions`, `sites`, upload de justificatif, filtrage des clients UUID utilisables et exclusion des chauffeurs non conformes. |
 | Charges | A faire | Backend disponible sur `/charges`, ecrans Flutter encore non relies a l'API. |
 | Recettes | A faire | Backend disponible sur `/revenues`, ecrans Flutter encore non relies a l'API. |
 | Paiements clients | A faire | Backend disponible sur `/client-payments`, integration Flutter a faire. |
@@ -136,6 +138,7 @@ Routes utiles deja presentes dans le backend :
 - `GET /auth/me`
 - `GET /clients`
 - `GET /clients/:id`
+- `GET /drivers`
 - `GET /trucks`
 - `GET /trucks/:id`
 - `GET /loadings`

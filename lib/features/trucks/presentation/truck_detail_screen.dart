@@ -82,6 +82,23 @@ class _TruckDetailScreenState extends State<TruckDetailScreen>
                           Text(truck['plate'],
                               style: AppTextStyles.headlineLarge.copyWith(
                                   color: Colors.white, letterSpacing: 2)),
+                          if ((truck['brand'] ?? '')
+                                  .toString()
+                                  .trim()
+                                  .isNotEmpty ||
+                              (truck['model'] ?? '')
+                                  .toString()
+                                  .trim()
+                                  .isNotEmpty)
+                            Text(
+                              [
+                                (truck['brand'] ?? '').toString().trim(),
+                                (truck['model'] ?? '').toString().trim(),
+                              ].where((value) => value.isNotEmpty).join(' · '),
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: Colors.white.withOpacity(0.75),
+                              ),
+                            ),
                           Text(truck['driver'],
                               style: AppTextStyles.bodyMedium.copyWith(
                                   color: Colors.white.withOpacity(0.8))),
@@ -171,6 +188,18 @@ class _SummaryTab extends StatelessWidget {
           icon: Icons.info_outline_rounded,
           children: [
             _row('Immatriculation', truck['plate']),
+            _row(
+              'Marque',
+              (truck['brand'] ?? '').toString().trim().isEmpty
+                  ? 'Non renseignée'
+                  : truck['brand'].toString(),
+            ),
+            _row(
+              'Modèle',
+              (truck['model'] ?? '').toString().trim().isEmpty
+                  ? 'Non renseigné'
+                  : truck['model'].toString(),
+            ),
             _row('Chauffeur', truck['driver']),
             _row('Téléphone', truck['phone']),
             _row('Kilométrage', '$fmtKm km'),
@@ -191,6 +220,19 @@ class _SummaryTab extends StatelessWidget {
             _row('Visite technique', truck['visite_expiry']),
             _row('Patente', truck['patente_expiry']),
           ]),
+      if ((truck['notes'] ?? '').toString().trim().isNotEmpty) ...[
+        const SizedBox(height: 14),
+        AppSectionCard(
+          title: 'Notes',
+          icon: Icons.sticky_note_2_outlined,
+          children: [
+            Text(
+              truck['notes'].toString(),
+              style: AppTextStyles.bodyMedium,
+            ),
+          ],
+        ),
+      ],
       const SizedBox(height: 14),
       AppSummaryCard(
         title: '💰 Performance financière',
@@ -257,9 +299,13 @@ class _SummaryTab extends StatelessWidget {
       );
 
   BadgeStatus _statusBadge(String s) => switch (s) {
-        'active' || 'traveling' => BadgeStatus.success,
-        'available' => BadgeStatus.info,
-        'maintenance' => BadgeStatus.warning,
+        'active' ||
+        'traveling' ||
+        'ACTIF' ||
+        'EN_VOYAGE' =>
+          BadgeStatus.success,
+        'available' || 'DISPONIBLE' => BadgeStatus.info,
+        'maintenance' || 'EN_ENTRETIEN' => BadgeStatus.warning,
         _ => BadgeStatus.error,
       };
 
