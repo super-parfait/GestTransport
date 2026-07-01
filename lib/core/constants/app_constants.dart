@@ -75,12 +75,33 @@ class AppStrings {
   static const String fullName = 'Nom complet';
   static const String phone = 'Téléphone';
   static const String email = 'Email';
+  static const String role = 'Rôle';
   static const String password = 'Mot de passe';
   static const String confirmPassword = 'Confirmer le mot de passe';
   static const String connecting = 'Connexion en cours...';
   static const String registering = 'Création du compte...';
   static const String loginError =
       'Identifiants incorrects. Veuillez réessayer.';
+
+  static const List<String> registrationRoles = [
+    'MANAGER',
+    'ACCOUNTANT',
+    'DRIVER',
+  ];
+
+  static const Map<String, String> registrationRoleLabels = {
+    'MANAGER': 'Proprietaire (Manager)',
+    'ACCOUNTANT': 'Comptable',
+    'DRIVER': 'Chauffeur',
+  };
+
+  static const Map<String, String> userRoleLabels = {
+    'ADMIN': 'Admin',
+    'MANAGER': 'Manager',
+    'ACCOUNTANT': 'Comptable',
+    'DRIVER': 'Chauffeur',
+    'VIEWER': 'Lecture',
+  };
 
   // Navigation
   static const String home = 'Accueil';
@@ -106,6 +127,7 @@ class AppStrings {
   static const String clientPayment = 'Règlement client';
   static const String expenses = 'Charges / Dépenses';
   static const String revenue = 'Recettes';
+  static const String sites = 'Sites & usines';
 
   // Common
   static const String save = 'Enregistrer';

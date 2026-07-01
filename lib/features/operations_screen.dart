@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/di/app_container.dart';
 import '../core/theme/app_theme.dart';
 import '../core/constants/app_constants.dart';
 import '../core/widgets/primary_section_app_bar.dart';
@@ -7,9 +8,15 @@ import 'factory_payments/presentation/factory_payment_screen.dart';
 import 'client_payments/presentation/client_payment_screen.dart';
 import 'charges/presentation/charges_screen.dart';
 import 'revenues/presentation/revenue_screen.dart';
+import 'sites/presentation/sites_management_screen.dart';
 
 class OperationsScreen extends StatelessWidget {
-  const OperationsScreen({super.key});
+  final AppContainer container;
+
+  const OperationsScreen({
+    super.key,
+    required this.container,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +27,31 @@ class OperationsScreen extends StatelessWidget {
         icon: Icons.factory_rounded,
         color: AppColors.primary,
         badge: null,
-        onTap: () => Navigator.push(context,
-            MaterialPageRoute(builder: (_) => const FactoryPaymentScreen())),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => FactoryPaymentScreen(
+              repository: container.factoryPaymentsRepository,
+            ),
+          ),
+        ),
+      ),
+      _OpCard(
+        title: AppStrings.sites,
+        description:
+            'Ajouter, modifier ou supprimer vos carrières, usines et autres sites',
+        icon: Icons.location_city_rounded,
+        color: AppColors.accent,
+        badge: null,
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => SitesManagementScreen(
+              repository: container.sitesRepository,
+              session: container.sessionController.session,
+            ),
+          ),
+        ),
       ),
       _OpCard(
         title: AppStrings.clientLoading,
@@ -30,8 +60,17 @@ class OperationsScreen extends StatelessWidget {
         color: AppColors.info,
         badge: 'Important',
         badgeColor: AppColors.info,
-        onTap: () => Navigator.push(context,
-            MaterialPageRoute(builder: (_) => const ClientLoadingScreen())),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ClientLoadingScreen(
+              loadingsRepository: container.loadingsRepository,
+              clientsRepository: container.clientsRepository,
+              trucksRepository: container.trucksRepository,
+              sitesRepository: container.sitesRepository,
+            ),
+          ),
+        ),
       ),
       _OpCard(
         title: AppStrings.clientPayment,
@@ -87,11 +126,9 @@ class OperationsScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
-                color: AppColors.shadow,
-                blurRadius: 8,
-                offset: const Offset(0, 2))
+                color: AppColors.shadow, blurRadius: 8, offset: Offset(0, 2))
           ],
         ),
         child: Row(
@@ -100,7 +137,7 @@ class OperationsScreen extends StatelessWidget {
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: op.color.withOpacity(0.12),
+                color: op.color.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(op.icon, color: op.color, size: 28),
@@ -119,8 +156,8 @@ class OperationsScreen extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color:
-                                (op.badgeColor ?? op.color).withOpacity(0.15),
+                            color: (op.badgeColor ?? op.color)
+                                .withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(op.badge!,
@@ -136,7 +173,7 @@ class OperationsScreen extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(Icons.arrow_forward_ios_rounded,
+            const Icon(Icons.arrow_forward_ios_rounded,
                 size: 16, color: AppColors.textTertiary),
           ],
         ),

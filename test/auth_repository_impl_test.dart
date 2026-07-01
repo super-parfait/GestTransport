@@ -42,8 +42,8 @@ void main() {
         const RegisterRequest(
           name: 'Test User',
           phone: '0711223344',
-          email: 'test@example.com',
           password: 'secret123',
+          role: 'MANAGER',
         ),
       ),
       throwsA(
@@ -57,6 +57,61 @@ void main() {
 
     expect(_SpyAuthMockDataSource.registerCallCount, 0);
     expect(preferences.getString(AppConstants.tokenKey), isNull);
+  });
+
+  test('restoreSession refreshes the connected user profile from auth me',
+      () async {
+    final storedSession = UserSession(
+      userId: 'stored-id',
+      identifier: '0700000000',
+      fullName: 'Stored User',
+      email: '',
+      role: '',
+      isActive: true,
+      accessToken: 'stored-access-token',
+      refreshToken: 'stored-refresh-token',
+    );
+
+    SharedPreferences.setMockInitialValues({
+      AppConstants.tokenKey: storedSession.accessToken,
+      AppConstants.refreshTokenKey: storedSession.refreshToken,
+      AppConstants.userKey: storedSession.toStoragePayload(),
+    });
+
+    final preferences = await SharedPreferences.getInstance();
+    final repository = AuthRepositoryImpl(
+      config: const AppConfig(
+        baseUrl: 'http://127.0.0.1:3000/api/v1',
+        connectTimeout: Duration(seconds: 30),
+        receiveTimeout: Duration(seconds: 30),
+        useMockApi: false,
+        fallbackToMockOnError: false,
+        enableNetworkLogs: false,
+      ),
+      remoteDataSource: _RefreshingAuthRemoteDataSource(
+        _buildApiClient(preferences),
+      ),
+      mockDataSource: const AuthMockDataSource(),
+      localDataSource: AuthLocalDataSource(TokenStorage(preferences)),
+    );
+
+    final refreshedSession = await repository.restoreSession();
+
+    expect(refreshedSession, isNotNull);
+    expect(refreshedSession!.userId, 'api-user-id');
+    expect(refreshedSession.fullName, 'Utilisateur API');
+    expect(refreshedSession.identifier, '0711223344');
+    expect(refreshedSession.email, 'api@example.com');
+    expect(refreshedSession.role, 'ADMIN');
+    expect(refreshedSession.isActive, isTrue);
+    expect(refreshedSession.accessToken, storedSession.accessToken);
+    expect(refreshedSession.refreshToken, storedSession.refreshToken);
+
+    final persistedPayload = preferences.getString(AppConstants.userKey);
+    expect(persistedPayload, isNotNull);
+    final persistedSession = UserSession.fromStoragePayload(persistedPayload!);
+    expect(persistedSession.fullName, 'Utilisateur API');
+    expect(persistedSession.email, 'api@example.com');
   });
 }
 
@@ -102,5 +157,21 @@ class _SpyAuthMockDataSource extends AuthMockDataSource {
   Future<UserSession> register(RegisterRequest request) async {
     registerCallCount += 1;
     return super.register(request);
+  }
+}
+
+class _RefreshingAuthRemoteDataSource extends AuthRemoteDataSource {
+  _RefreshingAuthRemoteDataSource(ApiClient apiClient) : super(apiClient);
+
+  @override
+  Future<UserSession> fetchCurrentUser(UserSession currentSession) async {
+    return currentSession.mergeUserProfile({
+      'id': 'api-user-id',
+      'name': 'Utilisateur API',
+      'phone': '0711223344',
+      'email': 'api@example.com',
+      'role': 'ADMIN',
+      'isActive': true,
+    });
   }
 }

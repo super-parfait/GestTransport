@@ -11,7 +11,8 @@ class AuthMockDataSource {
 
     if (request.name.trim().isEmpty ||
         request.phone.trim().isEmpty ||
-        request.password.trim().isEmpty) {
+        request.password.trim().isEmpty ||
+        request.role.trim().isEmpty) {
       throw const ApiException('Informations d’inscription incomplètes.');
     }
 
@@ -23,6 +24,9 @@ class AuthMockDataSource {
       userId: 'demo-user-${request.phone.trim()}',
       identifier: request.phone.trim(),
       fullName: request.name.trim(),
+      email: '',
+      role: request.role.trim(),
+      isActive: true,
       accessToken: 'demo-access-token',
       refreshToken: 'demo-refresh-token',
     );
@@ -41,6 +45,9 @@ class AuthMockDataSource {
       userId: 'demo-user',
       identifier: identifier,
       fullName: 'Utilisateur ${identifier.replaceAll(RegExp(r'\s+'), ' ')}',
+      email: '',
+      role: 'VIEWER',
+      isActive: true,
       accessToken: 'demo-access-token',
       refreshToken: 'demo-refresh-token',
     );

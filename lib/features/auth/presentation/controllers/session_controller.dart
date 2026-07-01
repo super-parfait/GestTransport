@@ -91,8 +91,8 @@ class SessionController extends ChangeNotifier {
   Future<bool> register({
     required String fullName,
     required String phone,
-    required String email,
     required String password,
+    required String role,
   }) async {
     _isSubmitting = true;
     _errorMessage = null;
@@ -103,8 +103,8 @@ class SessionController extends ChangeNotifier {
         RegisterRequest(
           name: fullName.trim(),
           phone: phone.trim(),
-          email: email.trim(),
           password: password.trim(),
+          role: role.trim(),
         ),
       );
       _status = SessionStatus.authenticated;

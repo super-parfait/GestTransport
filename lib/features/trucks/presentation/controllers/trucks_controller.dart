@@ -17,9 +17,13 @@ class TrucksController extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  int get activeCount => _trucks
-      .where((truck) => truck.status == 'active' || truck.status == 'traveling')
-      .length;
+  int get activeCount => _trucks.where((truck) {
+        final status = truck.status.trim().toUpperCase();
+        return status == 'ACTIVE' ||
+            status == 'TRAVELING' ||
+            status == 'ACTIF' ||
+            status == 'EN_VOYAGE';
+      }).length;
 
   int get alertsCount => _trucks.where((truck) => truck.hasAlerts).length;
 

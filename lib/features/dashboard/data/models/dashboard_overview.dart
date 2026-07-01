@@ -27,6 +27,7 @@ class DashboardAlert {
 }
 
 class DashboardOverview {
+  final String role;
   final int dailyLoadings;
   final String factoryPayments;
   final String clientPayments;
@@ -38,6 +39,7 @@ class DashboardOverview {
   final List<DashboardAlert> alerts;
 
   const DashboardOverview({
+    required this.role,
     required this.dailyLoadings,
     required this.factoryPayments,
     required this.clientPayments,
@@ -51,6 +53,7 @@ class DashboardOverview {
 
   factory DashboardOverview.fromJson(Map<String, dynamic> json) {
     return DashboardOverview(
+      role: _asString(json['role']),
       dailyLoadings: _asInt(json['daily_loadings'] ?? json['dailyLoadings']),
       factoryPayments: _asString(
         json['factory_payments'] ?? json['factoryPayments'],
@@ -71,8 +74,18 @@ class DashboardOverview {
     );
   }
 
+  int get factoryPaymentsAmount => _asAmount(factoryPayments);
+  int get clientPaymentsAmount => _asAmount(clientPayments);
+  int get dailyExpensesAmount => _asAmount(dailyExpenses);
+  int get dailyRevenuesAmount => _asAmount(dailyRevenues);
+  int get totalInflowAmount => dailyRevenuesAmount + clientPaymentsAmount;
+  int get totalOutflowAmount => dailyExpensesAmount + factoryPaymentsAmount;
+  int get estimatedNetAmount => totalInflowAmount - totalOutflowAmount;
+  bool get hasAlerts => alerts.isNotEmpty;
+
   Map<String, dynamic> toMap() {
     return {
+      'role': role,
       'daily_loadings': dailyLoadings,
       'factory_payments': factoryPayments,
       'client_payments': clientPayments,
@@ -89,13 +102,31 @@ class DashboardOverview {
     if (value is int) {
       return value;
     }
-    if (value is double) {
+    if (value is num) {
       return value.toInt();
     }
-    return int.tryParse(value?.toString() ?? '') ?? 0;
+    return _asAmount(value);
   }
 
   static String _asString(dynamic value) => value?.toString() ?? '0';
+
+  static int _asAmount(dynamic value) {
+    if (value is int) {
+      return value;
+    }
+    if (value is num) {
+      return value.toInt();
+    }
+
+    final normalized =
+        value?.toString().replaceAll(RegExp(r'[^0-9-]'), '').trim() ?? '';
+
+    if (normalized.isEmpty || normalized == '-') {
+      return 0;
+    }
+
+    return int.tryParse(normalized) ?? 0;
+  }
 
   static List<DashboardAlert> _parseAlerts(dynamic value) {
     if (value is! List) {

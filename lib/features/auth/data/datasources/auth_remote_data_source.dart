@@ -9,6 +9,18 @@ class AuthRemoteDataSource {
 
   const AuthRemoteDataSource(this._apiClient);
 
+  Future<UserSession> fetchCurrentUser(UserSession currentSession) {
+    return _apiClient.get(
+      ApiEndpoints.me,
+      decoder: (data) {
+        final user = data is Map<String, dynamic>
+            ? data
+            : Map<String, dynamic>.from(data as Map);
+        return currentSession.mergeUserProfile(user);
+      },
+    );
+  }
+
   Future<UserSession> register(RegisterRequest request) {
     return _apiClient.post(
       ApiEndpoints.register,

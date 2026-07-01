@@ -288,9 +288,8 @@ class _LoginScreenState extends State<LoginScreen>
                                         const SizedBox(height: 28),
                                         AppButton(
                                           label: AppStrings.login,
-                                          isLoading: isLoading,
                                           icon: Icons.login_rounded,
-                                          onPressed: _login,
+                                          onPressed: isLoading ? null : _login,
                                         ),
                                         const SizedBox(height: 18),
                                         Center(

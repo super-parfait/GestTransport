@@ -22,9 +22,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _fullNameCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
-  final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   final _confirmPasswordCtrl = TextEditingController();
+  String? _selectedRole;
 
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
@@ -39,7 +39,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void dispose() {
     _fullNameCtrl.dispose();
     _phoneCtrl.dispose();
-    _emailCtrl.dispose();
     _passwordCtrl.dispose();
     _confirmPasswordCtrl.dispose();
     super.dispose();
@@ -53,8 +52,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final isRegistered = await widget.sessionController.register(
       fullName: _fullNameCtrl.text,
       phone: _phoneCtrl.text,
-      email: _emailCtrl.text,
       password: _passwordCtrl.text,
+      role: _selectedRole!,
     );
 
     if (!mounted || !isRegistered) {
@@ -79,20 +78,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return null;
   }
 
-  String? _validateEmail(String? value) {
-    final trimmed = value?.trim() ?? '';
-    if (trimmed.isEmpty) {
-      return null;
-    }
-
-    final emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
-    if (!emailRegex.hasMatch(trimmed)) {
-      return 'Email invalide';
-    }
-
-    return null;
-  }
-
   String? _validatePassword(String? value) {
     final trimmed = value?.trim() ?? '';
 
@@ -102,6 +87,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (trimmed.length < 6) {
       return 'Le mot de passe doit contenir au moins 6 caractères';
+    }
+
+    return null;
+  }
+
+  String? _validateRole(String? value) {
+    if ((value ?? '').trim().isEmpty) {
+      return 'Choisissez un rôle';
     }
 
     return null;
@@ -226,7 +219,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   const SizedBox(height: 16),
                                   AppTextField(
                                     label: AppStrings.phone,
-                                    hint: 'Ex: 07 11 22 33 44',
+                                    hint: 'Ex: +225 555 123 456',
                                     controller: _phoneCtrl,
                                     keyboardType: TextInputType.phone,
                                     required: true,
@@ -238,17 +231,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     validator: _validatePhone,
                                   ),
                                   const SizedBox(height: 16),
-                                  AppTextField(
-                                    label: AppStrings.email,
-                                    hint: 'Ex: contact@entreprise.com',
-                                    controller: _emailCtrl,
-                                    keyboardType: TextInputType.emailAddress,
-                                    prefixIcon: const Icon(
-                                      Icons.mail_outline_rounded,
-                                      color: AppColors.textSecondary,
-                                      size: 20,
-                                    ),
-                                    validator: _validateEmail,
+                                  AppDropdown<String>(
+                                    label: AppStrings.role,
+                                    value: _selectedRole,
+                                    hint: 'Choisissez un rôle',
+                                    required: true,
+                                    validator: _validateRole,
+                                    items: AppStrings.registrationRoles
+                                        .map(
+                                          (role) => DropdownMenuItem<String>(
+                                            value: role,
+                                            child: Text(
+                                              AppStrings.registrationRoleLabels[
+                                                  role]!,
+                                            ),
+                                          ),
+                                        )
+                                        .toList(),
+                                    onChanged: (value) {
+                                      setState(() => _selectedRole = value);
+                                    },
                                   ),
                                   const SizedBox(height: 16),
                                   AppTextField(
@@ -308,8 +310,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   AppButton(
                                     label: AppStrings.register,
                                     icon: Icons.person_add_alt_1_rounded,
-                                    isLoading: isLoading,
-                                    onPressed: _submit,
+                                    onPressed: isLoading ? null : _submit,
                                   ),
                                   const SizedBox(height: 16),
                                   Center(

@@ -1,6 +1,7 @@
 class TruckModel {
   final String id;
   final String plate;
+  final String driverId;
   final String driver;
   final String phone;
   final String status;
@@ -18,6 +19,7 @@ class TruckModel {
   const TruckModel({
     required this.id,
     required this.plate,
+    required this.driverId,
     required this.driver,
     required this.phone,
     required this.status,
@@ -34,13 +36,17 @@ class TruckModel {
   });
 
   factory TruckModel.fromJson(Map<String, dynamic> json) {
+    final driver = _asMap(json['driver']);
+
     return TruckModel(
       id: (json['id'] ?? '').toString(),
-      plate: (json['plate'] ?? '').toString(),
-      driver: (json['driver'] ?? '').toString(),
-      phone: (json['phone'] ?? '').toString(),
-      status: (json['status'] ?? 'available').toString(),
-      km: _asInt(json['km']),
+      plate: (json['plate'] ?? json['registration'] ?? '').toString(),
+      driverId: (json['driverId'] ?? driver['id'] ?? '').toString(),
+      driver: (json['driver'] is String ? json['driver'] : driver['name'] ?? '')
+          .toString(),
+      phone: (json['phone'] ?? driver['phone'] ?? '').toString(),
+      status: (json['status'] ?? 'DISPONIBLE').toString(),
+      km: _asInt(json['km'] ?? json['currentKm']),
       alerts: _parseStringList(json['alerts']),
       assuranceExpiry: (json['assurance_expiry'] ?? '').toString(),
       visiteExpiry: (json['visite_expiry'] ?? '').toString(),
@@ -59,6 +65,7 @@ class TruckModel {
     return {
       'id': id,
       'plate': plate,
+      'driver_id': driverId,
       'driver': driver,
       'phone': phone,
       'status': status,
@@ -102,5 +109,16 @@ class TruckModel {
         .whereType<Map>()
         .map((item) => Map<String, dynamic>.from(item))
         .toList();
+  }
+
+  static Map<String, dynamic> _asMap(dynamic value) {
+    if (value is Map<String, dynamic>) {
+      return value;
+    }
+    if (value is Map) {
+      return Map<String, dynamic>.from(value);
+    }
+
+    return const <String, dynamic>{};
   }
 }

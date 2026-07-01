@@ -1,4 +1,5 @@
 import '../../../../core/config/app_config.dart';
+import '../../../../core/network/api_exception.dart';
 import '../datasources/auth_local_data_source.dart';
 import '../datasources/auth_mock_data_source.dart';
 import '../datasources/auth_remote_data_source.dart';
@@ -42,8 +43,30 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<UserSession?> restoreSession() {
-    return _localDataSource.readSession();
+  Future<UserSession?> restoreSession() async {
+    final storedSession = await _localDataSource.readSession();
+    if (storedSession == null) {
+      return null;
+    }
+
+    if (_config.useMockApi) {
+      return storedSession;
+    }
+
+    try {
+      final refreshedSession =
+          await _remoteDataSource.fetchCurrentUser(storedSession);
+      await _localDataSource.saveSession(refreshedSession);
+      return refreshedSession;
+    } on Object catch (error) {
+      if (error is ApiException &&
+          (error.statusCode == 401 || error.statusCode == 403)) {
+        await _localDataSource.clearSession();
+        return null;
+      }
+
+      return storedSession;
+    }
   }
 
   @override

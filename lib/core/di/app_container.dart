@@ -15,6 +15,18 @@ import '../../features/dashboard/data/datasources/dashboard_mock_data_source.dar
 import '../../features/dashboard/data/datasources/dashboard_remote_data_source.dart';
 import '../../features/dashboard/data/repositories/dashboard_repository_impl.dart';
 import '../../features/dashboard/domain/repositories/dashboard_repository.dart';
+import '../../features/factory_payments/data/datasources/factory_payments_mock_data_source.dart';
+import '../../features/factory_payments/data/datasources/factory_payments_remote_data_source.dart';
+import '../../features/factory_payments/data/repositories/factory_payments_repository_impl.dart';
+import '../../features/factory_payments/domain/repositories/factory_payments_repository.dart';
+import '../../features/loadings/data/datasources/loadings_mock_data_source.dart';
+import '../../features/loadings/data/datasources/loadings_remote_data_source.dart';
+import '../../features/loadings/data/repositories/loadings_repository_impl.dart';
+import '../../features/loadings/domain/repositories/loadings_repository.dart';
+import '../../features/sites/data/datasources/sites_mock_data_source.dart';
+import '../../features/sites/data/datasources/sites_remote_data_source.dart';
+import '../../features/sites/data/repositories/sites_repository_impl.dart';
+import '../../features/sites/domain/repositories/sites_repository.dart';
 import '../../features/trucks/data/datasources/trucks_mock_data_source.dart';
 import '../../features/trucks/data/datasources/trucks_remote_data_source.dart';
 import '../../features/trucks/data/repositories/trucks_repository_impl.dart';
@@ -32,6 +44,9 @@ class AppContainer {
   final DashboardRepository dashboardRepository;
   final ClientsRepository clientsRepository;
   final TrucksRepository trucksRepository;
+  final LoadingsRepository loadingsRepository;
+  final FactoryPaymentsRepository factoryPaymentsRepository;
+  final SitesRepository sitesRepository;
   final SessionController sessionController;
 
   const AppContainer._({
@@ -43,6 +58,9 @@ class AppContainer {
     required this.dashboardRepository,
     required this.clientsRepository,
     required this.trucksRepository,
+    required this.loadingsRepository,
+    required this.factoryPaymentsRepository,
+    required this.sitesRepository,
     required this.sessionController,
   });
 
@@ -85,6 +103,24 @@ class AppContainer {
       mockDataSource: const TrucksMockDataSource(),
     );
 
+    final loadingsRepository = LoadingsRepositoryImpl(
+      config: resolvedConfig,
+      remoteDataSource: LoadingsRemoteDataSource(apiClient),
+      mockDataSource: LoadingsMockDataSource(),
+    );
+
+    final factoryPaymentsRepository = FactoryPaymentsRepositoryImpl(
+      config: resolvedConfig,
+      remoteDataSource: FactoryPaymentsRemoteDataSource(apiClient),
+      mockDataSource: FactoryPaymentsMockDataSource(),
+    );
+
+    final sitesRepository = SitesRepositoryImpl(
+      config: resolvedConfig,
+      remoteDataSource: SitesRemoteDataSource(apiClient),
+      mockDataSource: SitesMockDataSource(),
+    );
+
     return AppContainer._(
       config: resolvedConfig,
       httpClient: httpClient,
@@ -94,6 +130,9 @@ class AppContainer {
       dashboardRepository: dashboardRepository,
       clientsRepository: clientsRepository,
       trucksRepository: trucksRepository,
+      loadingsRepository: loadingsRepository,
+      factoryPaymentsRepository: factoryPaymentsRepository,
+      sitesRepository: sitesRepository,
       sessionController: SessionController(authRepository),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
 import '../constants/app_constants.dart';
@@ -636,6 +637,27 @@ class AppFilePicker extends StatefulWidget {
 class _AppFilePickerState extends State<AppFilePicker> {
   String? _fileName;
 
+  Future<void> _pickFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: false,
+      type: FileType.custom,
+      allowedExtensions: const ['jpg', 'jpeg', 'png', 'pdf'],
+    );
+
+    if (result == null || result.files.isEmpty) {
+      return;
+    }
+
+    final selected = result.files.first;
+
+    if (selected.path == null || selected.path!.isEmpty) {
+      return;
+    }
+
+    setState(() => _fileName = selected.name);
+    widget.onFileSelected?.call(selected.path);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -644,11 +666,7 @@ class _AppFilePickerState extends State<AppFilePicker> {
         Text(widget.label, style: AppTextStyles.labelLarge),
         const SizedBox(height: 6),
         InkWell(
-          onTap: () {
-            // Simulate file selection
-            setState(() => _fileName = 'recu_scan.jpg');
-            widget.onFileSelected?.call('/path/to/file');
-          },
+          onTap: _pickFile,
           borderRadius: BorderRadius.circular(12),
           child: Container(
             padding: const EdgeInsets.all(16),

@@ -3,11 +3,27 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_widgets.dart';
 import '../../../core/network/api_service.dart';
 import '../../client_payments/presentation/client_payment_screen.dart';
+import '../../loadings/domain/repositories/loadings_repository.dart';
 import '../../loadings/presentation/loading_screen.dart';
+import '../../sites/domain/repositories/sites_repository.dart';
+import '../../trucks/domain/repositories/trucks_repository.dart';
+import '../domain/repositories/clients_repository.dart';
 
 class ClientDetailScreen extends StatefulWidget {
   final Map<String, dynamic> client;
-  const ClientDetailScreen({super.key, required this.client});
+  final ClientsRepository clientsRepository;
+  final TrucksRepository trucksRepository;
+  final SitesRepository sitesRepository;
+  final LoadingsRepository loadingsRepository;
+
+  const ClientDetailScreen({
+    super.key,
+    required this.client,
+    required this.clientsRepository,
+    required this.trucksRepository,
+    required this.sitesRepository,
+    required this.loadingsRepository,
+  });
 
   @override
   State<ClientDetailScreen> createState() => _ClientDetailScreenState();
@@ -141,7 +157,13 @@ class _ClientDetailScreenState extends State<ClientDetailScreen>
               onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (_) => const ClientLoadingScreen())),
+                      builder: (_) => ClientLoadingScreen(
+                            loadingsRepository: widget.loadingsRepository,
+                            clientsRepository: widget.clientsRepository,
+                            trucksRepository: widget.trucksRepository,
+                            sitesRepository: widget.sitesRepository,
+                            prefilledClientId: c['id']?.toString(),
+                          ))),
             )),
             const SizedBox(width: 10),
             Expanded(

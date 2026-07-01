@@ -1,6 +1,6 @@
 # Suivi d'Implementation API
 
-Derniere mise a jour: 2026-06-29
+Derniere mise a jour: 2026-07-01
 
 Ce fichier sert de reference pour suivre les fonctionnalites deja branchees, celles en cours d'alignement et celles encore a implementer.
 
@@ -32,20 +32,21 @@ Ce fichier sert de reference pour suivre les fonctionnalites deja branchees, cel
 
 | Fonctionnalite | Etat | Notes |
 | --- | --- | --- |
-| Inscription utilisateur | Termine | `POST /auth/register` branche cote Flutter avec creation de session immediate apres inscription. |
+| Inscription utilisateur | Termine | `POST /auth/register` branche cote Flutter avec choix de role obligatoire dans l'app mobile (`MANAGER`, `ACCOUNTANT`, `DRIVER`). |
 | Connexion utilisateur | Termine | `POST /auth/login` branche, session stockee localement, bascule automatique entre ecran de login et application. |
 | Restauration de session | Termine | Session relue au demarrage via `SessionController`. |
-| Recuperation du profil courant | A faire | L'endpoint backend `GET /auth/me` existe mais n'est pas encore consomme cote Flutter. |
-| Tableau de bord accueil | Partiel | Le controller/repository existent, mais le frontend attend `/dashboard/overview` alors que le backend expose surtout `GET /reports/summary` et `GET /alerts`. |
-| Liste des clients | Partiel | Le datasource distant appelle `GET /clients`, mais le modele Flutter attend encore des champs de presentation non exposes tels quels par le DTO backend. |
+| Recuperation du profil courant | Termine | `GET /auth/me` est consomme pendant la restauration de session pour charger le profil actuel du user connecte. |
+| Tableau de bord accueil | Termine | Dashboard mobile branche sur `GET /dashboard/overview` avec cartes de synthese, alertes, profil connecte, bilan financier calcule et actions rapides. |
+| Liste des clients | Termine | Lecture et CRUD mobile branches sur `GET /clients`, `POST /clients`, `PATCH /clients/:id` et `DELETE /clients/:id`, avec signalement des anciens IDs non compatibles pour les chargements. |
 | Details client / releve client | A faire | Le backend expose `GET /clients/:id` et `GET /reports/clients/:clientId`, mais ce flux n'est pas encore branche proprement dans l'app. |
 | Liste des camions | Partiel | Le datasource distant appelle `GET /trucks`, mais le modele Flutter attend encore `plate`, `driver`, `km`, `alerts`, documents et historiques non alignes sur le DTO backend actuel. |
 | Details camion / releve camion | A faire | Le backend expose `GET /trucks/:id` et `GET /reports/trucks/:truckId`, integration Flutter non faite. |
-| Chargements | A faire | Backend disponible sur `/loadings`, ecrans Flutter encore non relies a l'API. |
+| Chargements | Termine | Historique et creation branches sur `GET /loadings`, `POST /loadings` avec references reelles `clients`, `camions`, `sites`, upload de justificatif, filtrage des clients UUID utilisables et neutralisation des `driverId` non conformes. |
 | Charges | A faire | Backend disponible sur `/charges`, ecrans Flutter encore non relies a l'API. |
 | Recettes | A faire | Backend disponible sur `/revenues`, ecrans Flutter encore non relies a l'API. |
 | Paiements clients | A faire | Backend disponible sur `/client-payments`, integration Flutter a faire. |
-| Paiements usines | A faire | Backend disponible sur `/factory-payments`, integration Flutter a faire. |
+| Gestion des sites / usines | Termine | Ecran mobile CRUD branche sur `GET /sites`, `POST /sites`, `PATCH /sites/:id` et `DELETE /sites/:id` pour gerer les sites accessibles au compte connecte. |
+| Paiements usines | Termine | Creation et historique branches avec `GET /sites`, `GET /factory-payments`, upload justificatif et `POST /factory-payments`; les sites sont filtres par utilisateur connecte. |
 | Vidanges | A faire | Backend disponible sur `/oil-changes`, integration Flutter a faire. |
 | Documents camions | A faire | Backend disponible sur `/truck-documents`, integration Flutter a faire. |
 | Alertes | A faire | Backend disponible sur `/alerts`, a integrer dans l'accueil et les ecrans camion. |
